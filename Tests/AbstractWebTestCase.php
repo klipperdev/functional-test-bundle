@@ -355,7 +355,6 @@ abstract class AbstractWebTestCase extends BaseWebTestCase
         $process = Process::fromShellCommandline($cmd, null, array_merge($_SERVER, $_ENV, [
             'PGPASSWORD' => $params['password'],
         ]));
-        $process->inheritEnvironmentVariables();
         $process->run();
 
         if (!$process->isSuccessful()) {
