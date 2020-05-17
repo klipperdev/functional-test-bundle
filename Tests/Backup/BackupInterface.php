@@ -20,8 +20,6 @@ interface BackupInterface
 {
     /**
      * @param array $params The database parameters
-     *
-     * @return bool
      */
     public static function supports(array $params): bool;
 

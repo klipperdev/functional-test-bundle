@@ -124,8 +124,6 @@ class DataCollectingValidator implements ValidatorInterface, EventSubscriberInte
 
     /**
      * Get the last errors.
-     *
-     * @return ConstraintViolationListInterface
      */
     public function getLastErrors(): ConstraintViolationListInterface
     {

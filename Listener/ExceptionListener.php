@@ -53,8 +53,6 @@ class ExceptionListener implements EventSubscriberInterface
 
     /**
      * Get the last exception.
-     *
-     * @return null|\Exception
      */
     public function getLastException(): ?\Exception
     {

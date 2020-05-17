@@ -89,8 +89,6 @@ class ContentMessage
 
     /**
      * Get the parent.
-     *
-     * @return null|ContentMessage
      */
     public function getParent(): ?ContentMessage
     {
@@ -99,8 +97,6 @@ class ContentMessage
 
     /**
      * Check if the content is required.
-     *
-     * @return bool
      */
     public function isRequired(): bool
     {
@@ -130,8 +126,6 @@ class ContentMessage
      * Get the content message field.
      *
      * @param int|string $name The field name
-     *
-     * @return ContentMessage
      */
     public function getField($name): ContentMessage
     {
@@ -150,8 +144,6 @@ class ContentMessage
 
     /**
      * Check if the content message has fields.
-     *
-     * @return bool
      */
     public function hasFields(): bool
     {
@@ -176,8 +168,6 @@ class ContentMessage
 
     /**
      * Get the number of field template messages.
-     *
-     * @return null|int
      */
     public function getFieldTemplateSize(): ?int
     {
@@ -186,8 +176,6 @@ class ContentMessage
 
     /**
      * Get the template message of fields.
-     *
-     * @return null|ContentMessage
      */
     public function getFieldTemplate(): ?ContentMessage
     {

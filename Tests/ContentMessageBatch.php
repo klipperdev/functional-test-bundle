@@ -51,8 +51,6 @@ class ContentMessageBatch
 
     /**
      * Get the status.
-     *
-     * @return string
      */
     public function getStatus(): string
     {
@@ -61,8 +59,6 @@ class ContentMessageBatch
 
     /**
      * Check if the list has errors.
-     *
-     * @return bool
      */
     public function hasErrors(): bool
     {
@@ -71,8 +67,6 @@ class ContentMessageBatch
 
     /**
      * Get the size.
-     *
-     * @return int
      */
     public function getSize(): int
     {
@@ -83,8 +77,6 @@ class ContentMessageBatch
      * Create the array content of content message list response.
      *
      * @param null|array $content The content
-     *
-     * @return array
      */
     public function build(?array $content): array
     {

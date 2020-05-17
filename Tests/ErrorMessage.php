@@ -74,8 +74,6 @@ class ErrorMessage
 
     /**
      * Get the error message.
-     *
-     * @return null|string
      */
     public function getMessage(): ?string
     {
@@ -84,8 +82,6 @@ class ErrorMessage
 
     /**
      * Get the error status code.
-     *
-     * @return int
      */
     public function getCode(): int
     {
@@ -94,8 +90,6 @@ class ErrorMessage
 
     /**
      * Get the parent.
-     *
-     * @return null|ErrorMessage
      */
     public function getParent(): ?ErrorMessage
     {
@@ -152,8 +146,6 @@ class ErrorMessage
 
     /**
      * Create the array content of error response.
-     *
-     * @return array
      */
     public function build(): array
     {

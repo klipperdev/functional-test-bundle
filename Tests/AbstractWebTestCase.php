@@ -75,8 +75,6 @@ abstract class AbstractWebTestCase extends BaseWebTestCase
 
     /**
      * Get the container service.
-     *
-     * @return ContainerInterface
      */
     protected function getContainer(): ContainerInterface
     {
@@ -100,8 +98,6 @@ abstract class AbstractWebTestCase extends BaseWebTestCase
      *
      * @param array|bool|string $authentication The authentication
      * @param array             $params         The client parameters
-     *
-     * @return KernelBrowser
      */
     protected function createAuthClient(bool $authentication = false, array $params = []): KernelBrowser
     {
@@ -154,8 +150,6 @@ abstract class AbstractWebTestCase extends BaseWebTestCase
      * @param int    $purgeMode    Sets the ORM purge mode
      *
      * @throws
-     *
-     * @return null|AbstractExecutor
      */
     protected function loadFixtures(array $classNames, ?string $omName = null, string $registryName = 'doctrine', ?int $purgeMode = null): ?AbstractExecutor
     {
@@ -347,8 +341,6 @@ abstract class AbstractWebTestCase extends BaseWebTestCase
      *
      * @param string $cmd    The command
      * @param array  $params The database connection parameters
-     *
-     * @return Process
      */
     protected function runDatabaseCommand(string $cmd, array $params): Process
     {
@@ -422,8 +414,7 @@ abstract class AbstractWebTestCase extends BaseWebTestCase
     /**
      * Load the database extensions for PostgreSQL.
      *
-     * @param Connection $connection
-     * @param string[]   $extensions
+     * @param string[] $extensions
      */
     protected function loadPgsqlDatabaseExtensions(Connection $connection, array $extensions): void
     {
@@ -438,8 +429,6 @@ abstract class AbstractWebTestCase extends BaseWebTestCase
 
     /**
      * Get the parameters of database connection.
-     *
-     * @return array
      */
     protected function getConnectionParams(): array
     {
@@ -514,7 +503,6 @@ abstract class AbstractWebTestCase extends BaseWebTestCase
      * Load a data fixture class.
      *
      * @param ContainerAwareLoader|Loader $loader
-     * @param string                      $className
      */
     protected function loadFixtureClass(Loader $loader, string $className): void
     {
@@ -544,8 +532,6 @@ abstract class AbstractWebTestCase extends BaseWebTestCase
      *                             check modification date on
      *
      * @throws
-     *
-     * @return null|\DateTime
      */
     protected function getFixtureLastModified($class): ?\DateTime
     {
@@ -563,12 +549,8 @@ abstract class AbstractWebTestCase extends BaseWebTestCase
     }
 
     /**
-     * @param ContainerInterface $container
-     * @param array              $params
-     * @param ClassMetadata[]    $metadatas
-     * @param string[]           $classNames
-     *
-     * @return null|BackupInterface
+     * @param ClassMetadata[] $metadatas
+     * @param string[]        $classNames
      */
     protected static function getBackup(ContainerInterface $container, array $params, array $metadatas, array $classNames): ?BackupInterface
     {
@@ -625,8 +607,6 @@ abstract class AbstractWebTestCase extends BaseWebTestCase
 
     /**
      * Boots the Kernel for this test.
-     *
-     * @param array $options
      *
      * @return KernelInterface A KernelInterface instance
      */

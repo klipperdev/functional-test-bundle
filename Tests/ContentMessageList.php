@@ -61,8 +61,6 @@ class ContentMessageList
 
     /**
      * Get the total of row.
-     *
-     * @return int
      */
     public function getTotal(): int
     {
@@ -71,8 +69,6 @@ class ContentMessageList
 
     /**
      * Get the limit of row by page.
-     *
-     * @return int
      */
     public function getLimit(): int
     {
@@ -81,8 +77,6 @@ class ContentMessageList
 
     /**
      * Get the page number.
-     *
-     * @return int
      */
     public function getPage(): int
     {
@@ -91,8 +85,6 @@ class ContentMessageList
 
     /**
      * Get the number of pages.
-     *
-     * @return int
      */
     public function getPages(): int
     {
@@ -115,8 +107,6 @@ class ContentMessageList
 
     /**
      * Get the result template message.
-     *
-     * @return null|ContentMessage
      */
     public function getTemplate(): ?ContentMessage
     {
@@ -127,8 +117,6 @@ class ContentMessageList
      * Create the array content of content message list response.
      *
      * @param null|array $content The content
-     *
-     * @return array
      */
     public function build(?array $content = null): array
     {

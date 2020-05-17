@@ -176,8 +176,6 @@ abstract class WebTestCase extends AbstractWebTestCase
      * Get the uploaded file instance with the filename.
      *
      * @param string $filename The filename
-     *
-     * @return UploadedFile
      */
     public function getUploadedFile(string $filename): UploadedFile
     {
@@ -203,8 +201,6 @@ abstract class WebTestCase extends AbstractWebTestCase
      * @param array         $server             The server parameters (HTTP headers are referenced with a HTTP_ prefix as PHP does)
      * @param array         $parameters         The request parameters
      * @param bool          $changeHistory      Whether to update the history or not (only used internally for back(), forward(), and reload())
-     *
-     * @return string
      */
     protected function request(
         ?int $expectedStatusCode,
@@ -236,8 +232,6 @@ abstract class WebTestCase extends AbstractWebTestCase
      * @param array             $server             The server parameters (HTTP headers are referenced with a HTTP_ prefix as PHP does)
      * @param array             $parameters         The request parameters
      * @param bool              $changeHistory      Whether to update the history or not (only used internally for back(), forward(), and reload())
-     *
-     * @return null|array
      */
     protected function requestJson(
         ?int $expectedStatusCode,
@@ -278,8 +272,6 @@ abstract class WebTestCase extends AbstractWebTestCase
      *
      * @param KernelBrowser $client             The http client
      * @param null|int      $expectedStatusCode The expected status code
-     *
-     * @return string
      */
     protected function getResponseData(KernelBrowser $client, ?int $expectedStatusCode = null): string
     {
@@ -302,8 +294,6 @@ abstract class WebTestCase extends AbstractWebTestCase
      *
      * @param KernelBrowser $client             The http client
      * @param null|int      $expectedStatusCode The expected status code
-     *
-     * @return null|array
      */
     protected function getResponseJsonData(KernelBrowser $client, ?int $expectedStatusCode = null): ?array
     {
@@ -327,8 +317,6 @@ abstract class WebTestCase extends AbstractWebTestCase
      * @param SerializationContext|string|string[] $viewGroups The serialization context of view groups
      *
      * @throws
-     *
-     * @return array
      */
     protected function getJsonSerializedData($data, $viewGroups = []): array
     {
@@ -353,8 +341,6 @@ abstract class WebTestCase extends AbstractWebTestCase
      * Get the resource domain.
      *
      * @param string $class The class name
-     *
-     * @return DomainInterface
      */
     protected function getResourceDomain(string $class): DomainInterface
     {
@@ -375,8 +361,6 @@ abstract class WebTestCase extends AbstractWebTestCase
 
     /**
      * Get the permission manager.
-     *
-     * @return PermissionManagerInterface
      */
     protected function getPermissionManager(): PermissionManagerInterface
     {
@@ -385,8 +369,6 @@ abstract class WebTestCase extends AbstractWebTestCase
 
     /**
      * Get the sharing manager.
-     *
-     * @return SharingManagerInterface
      */
     protected function getSharingManager(): SharingManagerInterface
     {
@@ -395,8 +377,6 @@ abstract class WebTestCase extends AbstractWebTestCase
 
     /**
      * Get the authorization checker.
-     *
-     * @return AuthorizationCheckerInterface
      */
     protected function getAuthorizationChecker(): AuthorizationCheckerInterface
     {
@@ -407,8 +387,6 @@ abstract class WebTestCase extends AbstractWebTestCase
      * Get the user of in token storage.
      *
      * @param bool $nullable Check if the user can me nullable
-     *
-     * @return UserInterface
      */
     protected function getTokenUser(bool $nullable = false): UserInterface
     {
@@ -427,8 +405,6 @@ abstract class WebTestCase extends AbstractWebTestCase
 
     /**
      * Get the security organizational context.
-     *
-     * @return OrganizationalContextInterface
      */
     protected function getOrganizationalContext(): OrganizationalContextInterface
     {
@@ -438,8 +414,6 @@ abstract class WebTestCase extends AbstractWebTestCase
 
     /**
      * Get the entity manager.
-     *
-     * @return EntityManager
      */
     protected function getEntityManager(): EntityManager
     {
@@ -452,8 +426,6 @@ abstract class WebTestCase extends AbstractWebTestCase
      * @param string      $class   The class name
      * @param string      $alias   The alias
      * @param null|string $indexBy The index by
-     *
-     * @return QueryBuilder
      */
     protected function createQueryBuilder(string $class, string $alias = 'o', ?string $indexBy = null): QueryBuilder
     {
@@ -470,8 +442,6 @@ abstract class WebTestCase extends AbstractWebTestCase
      * @param null|array $orderBy      The order by
      * @param null|int   $limit        The limit
      * @param null|int   $offset       The offset
-     *
-     * @return null|object
      */
     protected function findOneBy(
         string $class,
@@ -623,8 +593,6 @@ abstract class WebTestCase extends AbstractWebTestCase
      *
      * @param string $class   The class name
      * @param array  $options The options of resource default value
-     *
-     * @return object
      */
     protected function newInstance(string $class, array $options = []): object
     {
@@ -636,8 +604,6 @@ abstract class WebTestCase extends AbstractWebTestCase
      *
      * @param object $object          The domain object
      * @param bool   $thrownException Thrown an exception if the result is invalid
-     *
-     * @return ResourceInterface
      */
     protected function create(object $object, bool $thrownException = true): ResourceInterface
     {
@@ -655,8 +621,6 @@ abstract class WebTestCase extends AbstractWebTestCase
      *
      * @param array $objects         The domain objects
      * @param bool  $thrownException Thrown an exception if the result is invalid
-     *
-     * @return ResourceListInterface
      */
     protected function creates(array $objects, bool $thrownException = true): ResourceListInterface
     {
@@ -674,8 +638,6 @@ abstract class WebTestCase extends AbstractWebTestCase
      *
      * @param object $object          The domain object
      * @param bool   $thrownException Thrown an exception if the result is invalid
-     *
-     * @return ResourceInterface
      */
     protected function update(object $object, bool $thrownException = true): ResourceInterface
     {
@@ -693,8 +655,6 @@ abstract class WebTestCase extends AbstractWebTestCase
      *
      * @param array $objects         The domain objects
      * @param bool  $thrownException Thrown an exception if the result is invalid
-     *
-     * @return ResourceListInterface
      */
     protected function updates(array $objects, bool $thrownException = true): ResourceListInterface
     {
@@ -712,8 +672,6 @@ abstract class WebTestCase extends AbstractWebTestCase
      *
      * @param object $object          The domain object
      * @param bool   $thrownException Thrown an exception if the result is invalid
-     *
-     * @return ResourceInterface
      */
     protected function delete(object $object, bool $thrownException = true): ResourceInterface
     {
@@ -731,8 +689,6 @@ abstract class WebTestCase extends AbstractWebTestCase
      *
      * @param array $objects         The domain objects
      * @param bool  $thrownException Thrown an exception if the result is invalid
-     *
-     * @return ResourceListInterface
      */
     protected function deletes(array $objects, bool $thrownException = true): ResourceListInterface
     {
@@ -751,8 +707,6 @@ abstract class WebTestCase extends AbstractWebTestCase
      * @param object|string          $class           The class name or the object instance
      * @param null|int|object|string $identifier      The domain identifier
      * @param bool                   $thrownException Thrown an exception if the result is invalid
-     *
-     * @return ResourceInterface
      */
     protected function undelete($class, $identifier = null, bool $thrownException = true): ResourceInterface
     {
@@ -776,8 +730,6 @@ abstract class WebTestCase extends AbstractWebTestCase
      * @param object[]|string              $class           The class name or the object instances
      * @param null|int[]|object[]|string[] $identifiers     The domain identifiers
      * @param bool                         $thrownException Thrown an exception if the result is invalid
-     *
-     * @return ResourceListInterface
      */
     protected function undeletes($class, array $identifiers, bool $thrownException = true): ResourceListInterface
     {
@@ -810,11 +762,8 @@ abstract class WebTestCase extends AbstractWebTestCase
     /**
      * Extracts the location from the given route.
      *
-     * @param string $route    The name of the route
-     * @param array  $params   Set of parameters
-     * @param int    $absolute
-     *
-     * @return string
+     * @param string $route  The name of the route
+     * @param array  $params Set of parameters
      */
     protected function getUrl(string $route, array $params = [], int $absolute = UrlGeneratorInterface::ABSOLUTE_PATH): string
     {
@@ -825,8 +774,6 @@ abstract class WebTestCase extends AbstractWebTestCase
      * Inject the token with user.
      *
      * @param null|string $username The username
-     *
-     * @return null|UserInterface
      */
     protected function injectUserToken(?string $username = 'user.test'): ?UserInterface
     {
@@ -887,8 +834,6 @@ abstract class WebTestCase extends AbstractWebTestCase
      * @param string $value The value
      *
      * @throws
-     *
-     * @return string
      */
     protected function quoteIdentifier(string $value): string
     {
@@ -1004,8 +949,6 @@ abstract class WebTestCase extends AbstractWebTestCase
     }
 
     /**
-     * @param KernelBrowser $client
-     *
      * @return ConstraintViolationInterface[]|ConstraintViolationListInterface
      */
     private function getValidationErrors(KernelBrowser $client)
