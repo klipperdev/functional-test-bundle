@@ -24,19 +24,16 @@ use Symfony\Component\HttpKernel\KernelEvents;
  */
 class ExceptionListener implements EventSubscriberInterface
 {
-    /**
-     * @var null|\Exception
-     */
-    private $lastException;
+    private ?\Throwable $lastThrowable;
 
     /**
      * Set exception.
      *
      * @param ExceptionEvent $event The event
      */
-    public function setException(ExceptionEvent $event): void
+    public function setThrowable(ExceptionEvent $event): void
     {
-        $this->lastException = $event->getException();
+        $this->lastThrowable = $event->getThrowable();
     }
 
     /**
@@ -44,19 +41,19 @@ class ExceptionListener implements EventSubscriberInterface
      *
      * @param RequestEvent $event The event
      */
-    public function clearLastException(RequestEvent $event): void
+    public function clearLastThrowable(RequestEvent $event): void
     {
         if (HttpKernelInterface::MASTER_REQUEST === $event->getRequestType()) {
-            $this->lastException = null;
+            $this->lastThrowable = null;
         }
     }
 
     /**
-     * Get the last exception.
+     * Get the last throwable.
      */
-    public function getLastException(): ?\Exception
+    public function getLastThrowable(): ?\Throwable
     {
-        return $this->lastException;
+        return $this->lastThrowable;
     }
 
     /**
@@ -65,8 +62,8 @@ class ExceptionListener implements EventSubscriberInterface
     public static function getSubscribedEvents(): array
     {
         return [
-            KernelEvents::EXCEPTION => ['setException', 99999],
-            KernelEvents::REQUEST => ['clearLastException', 99999],
+            KernelEvents::EXCEPTION => ['setThrowable', 99999],
+            KernelEvents::REQUEST => ['clearLastThrowable', 99999],
         ];
     }
 }

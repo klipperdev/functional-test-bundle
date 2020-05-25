@@ -95,7 +95,7 @@ abstract class WebTestCase extends AbstractWebTestCase
 
         if ($expectedStatusCode !== $client->getResponse()->getStatusCode()) {
             // Get a more useful error message, if available
-            if ($exception = $client->getContainer()->get('klipper_functional_test.exception_listener')->getLastException()) {
+            if ($exception = $client->getContainer()->get('klipper_functional_test.exception_listener')->getLastThrowable()) {
                 $helpfulErrorMessage = $exception->getMessage();
             } elseif (\count($validationErrors = $this->getValidationErrors($client))) {
                 $helpfulErrorMessage = "Unexpected validation errors:\n";
