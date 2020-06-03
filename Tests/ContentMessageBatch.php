@@ -20,24 +20,13 @@ use Klipper\Component\Resource\ResourceListStatutes;
  */
 class ContentMessageBatch
 {
-    /**
-     * @var string
-     */
-    private $status;
+    private string $status;
+
+    private bool $hasErrors;
+
+    private int $size;
 
     /**
-     * @var bool
-     */
-    private $hasErrors;
-
-    /**
-     * @var int
-     */
-    private $size;
-
-    /**
-     * Constructor.
-     *
      * @param string $status    The resource status
      * @param bool   $hasErrors Check if the list has errors
      * @param int    $size      The number of expected records

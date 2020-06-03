@@ -18,34 +18,17 @@ namespace Klipper\Bundle\FunctionalTestBundle\Tests;
  */
 class ContentMessageList
 {
-    /**
-     * @var int
-     */
-    private $total;
+    private int $total;
+
+    private int $limit;
+
+    private int $page;
+
+    private int $pages;
+
+    private ?ContentMessage $template = null;
 
     /**
-     * @var int
-     */
-    private $limit;
-
-    /**
-     * @var int
-     */
-    private $page;
-
-    /**
-     * @var int
-     */
-    private $pages;
-
-    /**
-     * @var null|ContentMessage
-     */
-    private $template;
-
-    /**
-     * Constructor.
-     *
      * @param int $total The total of row
      * @param int $limit The limit of row by page
      * @param int $page  The page number

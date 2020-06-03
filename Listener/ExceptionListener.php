@@ -56,9 +56,6 @@ class ExceptionListener implements EventSubscriberInterface
         return $this->lastThrowable;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public static function getSubscribedEvents(): array
     {
         return [

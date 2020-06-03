@@ -25,34 +25,20 @@ class ContentMessage
      */
     private $value;
 
-    /**
-     * @var null|ContentMessage
-     */
-    private $parent;
+    private ?ContentMessage $parent;
 
-    /**
-     * @var bool
-     */
-    private $required;
+    private bool $required;
 
     /**
      * @var ContentMessage[]
      */
-    private $fields = [];
+    private array $fields = [];
+
+    private ?int $fieldTemplateSize = null;
+
+    private ?ContentMessage $fieldTemplate = null;
 
     /**
-     * @var null|int
-     */
-    private $fieldTemplateSize;
-
-    /**
-     * @var null|ContentMessage
-     */
-    private $fieldTemplate;
-
-    /**
-     * Constructor.
-     *
      * @param null|string         $message  The message
      * @param null|mixed          $value    The value
      * @param null|ContentMessage $parent   The parent

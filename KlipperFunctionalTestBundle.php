@@ -20,9 +20,6 @@ use Symfony\Component\HttpKernel\Bundle\Bundle;
  */
 class KlipperFunctionalTestBundle extends Bundle
 {
-    /**
-     * {@inheritdoc}
-     */
     public function build(ContainerBuilder $container): void
     {
         parent::build($container);

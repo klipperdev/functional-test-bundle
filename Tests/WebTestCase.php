@@ -50,19 +50,10 @@ use Symfony\Component\Validator\ConstraintViolationListInterface;
  */
 abstract class WebTestCase extends AbstractWebTestCase
 {
-    /**
-     * @var array
-     */
-    protected $disabledFilters = [];
+    protected array $disabledFilters = [];
 
-    /**
-     * @var string
-     */
-    protected $originalLocale;
+    protected ?string $originalLocale = null;
 
-    /**
-     * {@inheritdoc}
-     */
     protected function setUp(): void
     {
         parent::setUp();
@@ -71,9 +62,6 @@ abstract class WebTestCase extends AbstractWebTestCase
         \Locale::setDefault('en');
     }
 
-    /**
-     * {@inheritdoc}
-     */
     protected function tearDown(): void
     {
         \Locale::setDefault($this->originalLocale);
@@ -83,9 +71,6 @@ abstract class WebTestCase extends AbstractWebTestCase
         parent::tearDown();
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function assertStatusCode(int $expectedStatusCode, KernelBrowser $client, bool $showContent = true): void
     {
         $response = $client->getResponse();

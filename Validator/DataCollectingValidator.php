@@ -27,19 +27,11 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
  */
 class DataCollectingValidator implements ValidatorInterface, EventSubscriberInterface
 {
-    /**
-     * @var ValidatorInterface
-     */
-    protected $wrappedValidator;
+    protected ValidatorInterface $wrappedValidator;
+
+    protected ConstraintViolationListInterface $lastErrors;
 
     /**
-     * @var ConstraintViolationListInterface
-     */
-    protected $lastErrors;
-
-    /**
-     * Constructor.
-     *
      * @param ValidatorInterface $wrappedValidator The wrapped validator
      */
     public function __construct(ValidatorInterface $wrappedValidator)
@@ -48,9 +40,6 @@ class DataCollectingValidator implements ValidatorInterface, EventSubscriberInte
         $this->clearLastErrors();
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public static function getSubscribedEvents(): array
     {
         return [
@@ -58,57 +47,36 @@ class DataCollectingValidator implements ValidatorInterface, EventSubscriberInte
         ];
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function getMetadataFor($value): MetadataInterface
     {
         return $this->wrappedValidator->getMetadataFor($value);
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function hasMetadataFor($value): bool
     {
         return $this->wrappedValidator->hasMetadataFor($value);
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function validate($value, $constraints = null, $groups = null): ConstraintViolationListInterface
     {
         return $this->lastErrors = $this->wrappedValidator->validate($value, $constraints, $groups);
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function validateProperty($object, $propertyName, $groups = null): ConstraintViolationListInterface
     {
         return $this->wrappedValidator->validateProperty($object, $propertyName, $groups);
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function validatePropertyValue($objectOrClass, $propertyName, $value, $groups = null): ConstraintViolationListInterface
     {
         return $this->wrappedValidator->validatePropertyValue($objectOrClass, $propertyName, $value, $groups);
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function startContext(): ContextualValidatorInterface
     {
         return $this->wrappedValidator->startContext();
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function inContext(ExecutionContextInterface $context): ContextualValidatorInterface
     {
         return $this->wrappedValidator->inContext($context);

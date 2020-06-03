@@ -18,19 +18,11 @@ namespace Klipper\Bundle\FunctionalTestBundle\Tests;
  */
 trait DefaultAuthenticationTrait
 {
-    /**
-     * @var string
-     */
-    protected $defaultUsername = '';
+    protected string $defaultUsername = '';
+
+    protected string $defaultPassword = '';
 
     /**
-     * @var string
-     */
-    protected $defaultPassword = '';
-
-    /**
-     * {@inheritdoc}
-     *
      * @see DefaultAuthenticationInterface::setDefaultAuthentication()
      */
     public function setDefaultAuthentication(string $username, string $password): void

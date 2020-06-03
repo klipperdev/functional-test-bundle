@@ -23,9 +23,6 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class GenerateUuidCommand extends Command
 {
-    /**
-     * {@inheritdoc}
-     */
     protected function configure(): void
     {
         $this
@@ -35,8 +32,6 @@ class GenerateUuidCommand extends Command
     }
 
     /**
-     * {@inheritdoc}
-     *
      * @throws \Exception
      */
     protected function execute(InputInterface $input, OutputInterface $output): void

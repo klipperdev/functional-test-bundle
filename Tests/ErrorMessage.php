@@ -33,34 +33,23 @@ class ErrorMessage
      */
     public const NOT_FOUND = 'This page is unfortunately not available.';
 
-    /**
-     * @var null|string
-     */
-    private $message;
+    private ?string $message;
 
-    /**
-     * @var null|int
-     */
-    private $code;
+    private ?int $code;
 
-    /**
-     * @var null|ErrorMessage
-     */
-    private $parent;
+    private ?ErrorMessage $parent;
 
     /**
      * @var string[]
      */
-    private $errors = [];
+    private array $errors = [];
 
     /**
      * @var ErrorMessage[]
      */
-    private $children = [];
+    private array $children = [];
 
     /**
-     * Constructor.
-     *
      * @param null|string       $message The error message
      * @param null|int          $code    The error status code
      * @param null|ErrorMessage $parent  The parent

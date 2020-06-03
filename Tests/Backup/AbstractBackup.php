@@ -20,20 +20,11 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  */
 abstract class AbstractBackup implements BackupInterface
 {
-    /**
-     * @var ContainerInterface
-     */
-    protected $container;
+    protected ContainerInterface $container;
 
-    /**
-     * @var array
-     */
-    protected $params;
+    protected array $params;
 
-    /**
-     * @var string
-     */
-    protected $hash;
+    protected string $hash;
 
     public function __construct(ContainerInterface $container, array $params, string $hash)
     {

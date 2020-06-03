@@ -48,24 +48,12 @@ use Symfony\Contracts\Service\ResetInterface;
  */
 abstract class AbstractWebTestCase extends BaseWebTestCase
 {
-    /**
-     * @var KernelInterface
-     */
-    protected static $systemKernel;
+    protected static ?KernelInterface $systemKernel = null;
 
-    /**
-     * @var bool
-     */
-    protected static $dbReady = false;
+    protected static bool $dbReady = false;
 
-    /**
-     * @var bool
-     */
-    protected $systemBooted = false;
+    protected bool $systemBooted = false;
 
-    /**
-     * {@inheritdoc}
-     */
     protected function tearDown(): void
     {
         static::ensureSystemKernelShutdown();
@@ -579,9 +567,6 @@ abstract class AbstractWebTestCase extends BaseWebTestCase
         ];
     }
 
-    /**
-     * {@inheritdoc}
-     */
     protected static function bootKernel(array $options = []): KernelInterface
     {
         $kernel = parent::bootKernel($options);
@@ -590,9 +575,6 @@ abstract class AbstractWebTestCase extends BaseWebTestCase
         return $kernel;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     protected static function ensureKernelShutdown(): void
     {
         if (null !== static::$kernel && null !== ($container = static::$kernel->getContainer())) {

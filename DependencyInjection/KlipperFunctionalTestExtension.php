@@ -25,8 +25,6 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 class KlipperFunctionalTestExtension extends Extension
 {
     /**
-     * {@inheritdoc}
-     *
      * @throws \Exception
      */
     public function load(array $configs, ContainerBuilder $container): void
