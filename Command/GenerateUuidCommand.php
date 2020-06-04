@@ -34,8 +34,10 @@ class GenerateUuidCommand extends Command
     /**
      * @throws \Exception
      */
-    protected function execute(InputInterface $input, OutputInterface $output): void
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $output->writeln(Uuid::uuid4()->toString());
+
+        return 0;
     }
 }
