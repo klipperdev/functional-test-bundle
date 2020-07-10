@@ -20,7 +20,7 @@
         "klipper/data-loader": "^2.0.0",
         "klipper/doctrine-extra": "^2.0.0",
         "klipper/resource-bundle": "^2.0.0",
-        "ramsey/uuid": "^3.7.0"
+        "ramsey/uuid": "^4.0.0"
     },
     "minimum-stability": "dev",
     "prefer-stable": true,
