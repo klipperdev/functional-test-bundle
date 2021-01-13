@@ -20,15 +20,15 @@ use Doctrine\Common\DataFixtures\ProxyReferenceRepository;
 use Doctrine\Common\DataFixtures\Purger\MongoDBPurger;
 use Doctrine\Common\DataFixtures\Purger\ORMPurger;
 use Doctrine\Common\DataFixtures\Purger\PHPCRPurger;
-use Doctrine\Persistence\Mapping\AbstractClassMetadataFactory;
-use Doctrine\Persistence\Mapping\ClassMetadata;
-use Doctrine\Persistence\ObjectManager;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Driver\PDOSqlite\Driver as SqliteDriver;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Tools\SchemaTool;
 use Doctrine\Persistence\ManagerRegistry;
+use Doctrine\Persistence\Mapping\AbstractClassMetadataFactory;
+use Doctrine\Persistence\Mapping\ClassMetadata;
+use Doctrine\Persistence\ObjectManager;
 use Klipper\Bundle\FunctionalTestBundle\Tests\Backup\BackupInterface;
 use Klipper\Bundle\FunctionalTestBundle\Tests\Backup\MysqlBackup;
 use Klipper\Bundle\FunctionalTestBundle\Tests\Backup\PgsqlBackup;
@@ -159,7 +159,7 @@ abstract class AbstractWebTestCase extends BaseWebTestCase
             : 'Doctrine\\Common\\DataFixtures\\Executor\\'.$type.'Executor';
         $referenceRepository = new ProxyReferenceRepository($om);
         $metadataFactory = $om->getMetadataFactory();
-        $cacheDriver = $metadataFactory instanceof  AbstractClassMetadataFactory ? $metadataFactory->getCacheDriver() : null;
+        $cacheDriver = $metadataFactory instanceof AbstractClassMetadataFactory ? $metadataFactory->getCacheDriver() : null;
         $backup = null;
 
         if ($cacheDriver instanceof ClearableCache) {

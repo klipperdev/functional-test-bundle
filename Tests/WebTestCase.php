@@ -11,10 +11,10 @@
 
 namespace Klipper\Bundle\FunctionalTestBundle\Tests;
 
-use Doctrine\Persistence\ObjectRepository;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\QueryBuilder;
+use Doctrine\Persistence\ObjectRepository;
 use JMS\Serializer\SerializationContext;
 use Klipper\Bundle\ApiBundle\ViewGroups;
 use Klipper\Component\DataLoader\Exception\ConsoleResourceException;
