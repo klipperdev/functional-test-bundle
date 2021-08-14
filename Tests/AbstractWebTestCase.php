@@ -21,7 +21,6 @@ use Doctrine\Common\DataFixtures\Purger\MongoDBPurger;
 use Doctrine\Common\DataFixtures\Purger\ORMPurger;
 use Doctrine\Common\DataFixtures\Purger\PHPCRPurger;
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Driver\PDOSqlite\Driver as SqliteDriver;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Tools\SchemaTool;
@@ -32,6 +31,7 @@ use Doctrine\Persistence\ObjectManager;
 use Klipper\Bundle\FunctionalTestBundle\Tests\Backup\BackupInterface;
 use Klipper\Bundle\FunctionalTestBundle\Tests\Backup\MysqlBackup;
 use Klipper\Bundle\FunctionalTestBundle\Tests\Backup\PgsqlBackup;
+use PDO\SQLite\Driver as SqliteDriver;
 use Symfony\Bridge\Doctrine\DataFixtures\ContainerAwareLoader;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase as BaseWebTestCase;
@@ -52,23 +52,23 @@ abstract class AbstractWebTestCase extends BaseWebTestCase
 
     protected static bool $dbReady = false;
 
-    protected bool $systemBooted = false;
+    protected static bool $systemBooted = false;
 
     protected function tearDown(): void
     {
         static::ensureSystemKernelShutdown();
         parent::tearDown();
-        $this->systemBooted = false;
+        static::$systemBooted = false;
     }
 
     /**
      * Get the container service.
      */
-    protected function getContainer(): ContainerInterface
+    protected static function getContainer(): ContainerInterface
     {
-        if (null === static::$systemKernel || !$this->systemBooted) {
+        if (null === static::$systemKernel || !static::$systemBooted) {
             static::bootSystemKernel();
-            $this->systemBooted = true;
+            static::$systemBooted = true;
         }
 
         return static::$systemKernel->getContainer();
@@ -408,7 +408,7 @@ abstract class AbstractWebTestCase extends BaseWebTestCase
     {
         foreach ($extensions as $extension) {
             try {
-                $connection->prepare('CREATE EXTENSION '.$extension)->execute();
+                $connection->prepare('CREATE EXTENSION '.$extension)->executeQuery();
             } catch (\Exception $e) {
                 // nothing
             }
