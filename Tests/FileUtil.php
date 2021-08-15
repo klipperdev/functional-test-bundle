@@ -12,6 +12,7 @@
 namespace Klipper\Bundle\FunctionalTestBundle\Tests;
 
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\Filesystem\Filesystem;
 
 /**
  * File util class for tests.
@@ -31,7 +32,7 @@ final class FileUtil
     public static function loadFiles(ContainerInterface $container, array $files): array
     {
         $copyFiles = [];
-        $fs = $container->get('filesystem');
+        $fs = new Filesystem();
         $localBase = static::getLocalBase($container).'/';
         $originalFilename = __DIR__.'/Fixtures/Resources/assets/file.jpg';
 

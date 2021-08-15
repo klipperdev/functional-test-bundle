@@ -36,6 +36,7 @@ use Symfony\Bridge\Doctrine\DataFixtures\ContainerAwareLoader;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase as BaseWebTestCase;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpKernel\KernelInterface;
 use Symfony\Component\Process\Exception\ProcessFailedException;
 use Symfony\Component\Process\Process;
@@ -187,7 +188,8 @@ abstract class AbstractWebTestCase extends BaseWebTestCase
 
             if ($backup) {
                 $backupFile = $backup->getFile();
-                $container->get('filesystem')->mkdir(\dirname($backupFile));
+                $fs = new Filesystem();
+                $fs->mkdir(\dirname($backupFile));
 
                 if ($backup->exists() && $this->isBackupUpToDate($classNames, $backupFile)) {
                     $om->flush();
@@ -600,12 +602,13 @@ abstract class AbstractWebTestCase extends BaseWebTestCase
         static::$systemKernel->boot();
         $container = static::$systemKernel->getContainer();
         $container->get('translator')->setLocale(\Locale::getDefault());
+        $fs = new Filesystem();
 
         if ($container->hasParameter('klipper_functional_test.manifest.file')) {
             $assetFile = $container->getParameter('klipper_functional_test.manifest.file');
 
             if (!file_exists($assetFile)) {
-                $container->get('filesystem')->dumpFile($assetFile, '{}');
+                $fs->dumpFile($assetFile, '{}');
             }
         }
 

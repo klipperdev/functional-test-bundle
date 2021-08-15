@@ -569,7 +569,7 @@ abstract class WebTestCase extends AbstractWebTestCase
         $path = PropertyAccess::createPropertyAccessor()->getValue($object, $field);
 
         if ($assertDeleted) {
-            static::assertFileNotExists($path);
+            static::assertFileDoesNotExist($path);
         }
     }
 
