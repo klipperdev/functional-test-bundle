@@ -12,9 +12,9 @@
 namespace Klipper\Bundle\FunctionalTestBundle\Tests;
 
 use Doctrine\Common\Cache\ClearableCache;
-use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 use Doctrine\Common\DataFixtures\Executor\AbstractExecutor;
 use Doctrine\Common\DataFixtures\Executor\ORMExecutor;
+use Doctrine\Common\DataFixtures\FixtureInterface;
 use Doctrine\Common\DataFixtures\Loader;
 use Doctrine\Common\DataFixtures\ProxyReferenceRepository;
 use Doctrine\Common\DataFixtures\Purger\MongoDBPurger;
@@ -133,14 +133,14 @@ abstract class AbstractWebTestCase extends BaseWebTestCase
      * Depends on the doctrine data-fixtures library being available in the
      * class path.
      *
-     * @param array  $classNames   List of fully qualified class names of fixtures to load
-     * @param string $omName       The name of object manager to use
-     * @param string $registryName The service id of manager registry to use
-     * @param int    $purgeMode    Sets the ORM purge mode
+     * @param FixtureInterface[] $fixtures     List of fixtures to load
+     * @param string             $omName       The name of object manager to use
+     * @param string             $registryName The service id of manager registry to use
+     * @param int                $purgeMode    Sets the ORM purge mode
      *
      * @throws
      */
-    protected function loadFixtures(array $classNames, ?string $omName = null, string $registryName = 'doctrine', ?int $purgeMode = null): ?AbstractExecutor
+    protected function loadFixtures(array $fixtures, ?string $omName = null, string $registryName = 'doctrine', ?int $purgeMode = null): ?AbstractExecutor
     {
         $container = $this->getContainer();
         $registry = $container->get($registryName);
@@ -184,14 +184,14 @@ abstract class AbstractWebTestCase extends BaseWebTestCase
             $schemaTool = new SchemaTool($om);
             $schemaTool->dropSchema($metadatas);
 
-            $backup = static::getBackup($container, $params, $metadatas, $classNames);
+            $backup = static::getBackup($container, $params, $metadatas, $fixtures);
 
             if ($backup) {
                 $backupFile = $backup->getFile();
                 $fs = new Filesystem();
                 $fs->mkdir(\dirname($backupFile));
 
-                if ($backup->exists() && $this->isBackupUpToDate($classNames, $backupFile)) {
+                if ($backup->exists() && $this->isBackupUpToDate($fixtures, $backupFile)) {
                     $om->flush();
                     $om->clear();
 
@@ -250,7 +250,7 @@ abstract class AbstractWebTestCase extends BaseWebTestCase
             $executor->purge();
         }
 
-        $loader = $this->getFixtureLoader($classNames);
+        $loader = $this->getFixtureLoader($fixtures);
         $fixtures = $loader->getFixtures();
         $defaultAuth = $container->getParameter('klipper_functional_test.authentication');
 
@@ -439,25 +439,24 @@ abstract class AbstractWebTestCase extends BaseWebTestCase
      * Determine if the Fixtures that define a database backup have been
      * modified since the backup was made.
      *
-     * @param array  $classNames The fixture classnames to check
-     * @param string $backupFile The fixture backup database file path
+     * @param FixtureInterface[] $fixtures   The fixtures to check
+     * @param string             $backupFile The fixture backup database file path
      *
      * @throws
      *
      * @return bool TRUE if the backup was made since the modifications to the
      *              fixtures; FALSE otherwise
      */
-    protected function isBackupUpToDate(array $classNames, string $backupFile): bool
+    protected function isBackupUpToDate(array $fixtures, string $backupFile): bool
     {
         $backupLastModifiedDateTime = new \DateTime();
         $backupLastModifiedDateTime->setTimestamp(filemtime($backupFile));
 
-        /** @var \Symfony\Bridge\Doctrine\DataFixtures\ContainerAwareLoader $loader */
-        $loader = $this->getFixtureLoader($classNames);
+        $loader = $this->getFixtureLoader($fixtures);
 
         // Use loader in order to fetch all the dependencies fixtures.
-        foreach ($loader->getFixtures() as $className) {
-            $fixtureLastModifiedDateTime = $this->getFixtureLastModified($className);
+        foreach ($loader->getFixtures() as $fixture) {
+            $fixtureLastModifiedDateTime = $this->getFixtureLastModified($fixture);
 
             if ($backupLastModifiedDateTime < $fixtureLastModifiedDateTime) {
                 return false;
@@ -470,11 +469,11 @@ abstract class AbstractWebTestCase extends BaseWebTestCase
     /**
      * Retrieve Doctrine DataFixtures loader.
      *
-     * @param string[] $classNames
+     * @param FixtureInterface[] $fixtures
      *
      * @return ContainerAwareLoader|Loader
      */
-    protected function getFixtureLoader(array $classNames)
+    protected function getFixtureLoader(array $fixtures): Loader
     {
         $loaderClass = class_exists(ContainerAwareLoader::class)
             ? ContainerAwareLoader::class
@@ -482,35 +481,13 @@ abstract class AbstractWebTestCase extends BaseWebTestCase
 
         $loader = new $loaderClass($this->getContainer());
 
-        foreach ($classNames as $className) {
-            $this->loadFixtureClass($loader, $className);
+        foreach ($fixtures as $fixture) {
+            if (!$loader->hasFixture($fixture)) {
+                $loader->addFixture($fixture);
+            }
         }
 
         return $loader;
-    }
-
-    /**
-     * Load a data fixture class.
-     *
-     * @param ContainerAwareLoader|Loader $loader
-     */
-    protected function loadFixtureClass(Loader $loader, string $className): void
-    {
-        $fixture = new $className();
-
-        if ($loader->hasFixture($fixture)) {
-            unset($fixture);
-
-            return;
-        }
-
-        $loader->addFixture($fixture);
-
-        if ($fixture instanceof DependentFixtureInterface) {
-            foreach ($fixture->getDependencies() as $dependency) {
-                $this->loadFixtureClass($loader, $dependency);
-            }
-        }
     }
 
     /**
@@ -518,16 +495,15 @@ abstract class AbstractWebTestCase extends BaseWebTestCase
      * file were being written to, that is, the time when the content of the
      * file was changed.
      *
-     * @param object|string $class The fully qualified class name of the fixture class to
-     *                             check modification date on
+     * @param FixtureInterface $fixture The fixture to check modification date on
      *
      * @throws
      */
-    protected function getFixtureLastModified($class): ?\DateTime
+    protected function getFixtureLastModified(FixtureInterface $fixture): ?\DateTime
     {
         $lastModifiedDateTime = null;
 
-        $reflClass = new \ReflectionClass($class);
+        $reflClass = new \ReflectionClass($fixture);
         $classFileName = $reflClass->getFileName();
 
         if (file_exists($classFileName)) {
@@ -539,15 +515,15 @@ abstract class AbstractWebTestCase extends BaseWebTestCase
     }
 
     /**
-     * @param ClassMetadata[] $metadatas
-     * @param string[]        $classNames
+     * @param ClassMetadata[]    $metadatas
+     * @param FixtureInterface[] $fixtures
      */
-    protected static function getBackup(ContainerInterface $container, array $params, array $metadatas, array $classNames): ?BackupInterface
+    protected static function getBackup(ContainerInterface $container, array $params, array $metadatas, array $fixtures): ?BackupInterface
     {
         $selectedBackup = null;
 
         if (class_exists(Process::class) && $container->getParameter('klipper_functional_test.cache_db')) {
-            $hash = md5(serialize($metadatas).serialize($classNames));
+            $hash = md5(serialize($metadatas).serialize(static::getFixtureClassnames($fixtures)));
 
             foreach (static::getBackupClasses() as $class) {
                 if (\call_user_func($class.'::supports', $params)) {
@@ -636,5 +612,21 @@ abstract class AbstractWebTestCase extends BaseWebTestCase
                 $container->reset();
             }
         }
+    }
+
+    /**
+     * @param FixtureInterface[] $fixtures
+     *
+     * @return string[]
+     */
+    protected static function getFixtureClassnames(array $fixtures): array
+    {
+        $classnames = array_map(static function (FixtureInterface $fixture) {
+            return \get_class($fixture);
+        }, $fixtures);
+
+        sort($classnames);
+
+        return $classnames;
     }
 }
