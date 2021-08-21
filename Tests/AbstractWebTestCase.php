@@ -524,10 +524,11 @@ abstract class AbstractWebTestCase extends BaseWebTestCase
 
         if (class_exists(Process::class) && $container->getParameter('klipper_functional_test.cache_db')) {
             $hash = md5(serialize($metadatas).serialize(static::getFixtureClassnames($fixtures)));
+            $cacheDir = $container->getParameter('kernel.cache_dir');
 
             foreach (static::getBackupClasses() as $class) {
                 if (\call_user_func($class.'::supports', $params)) {
-                    $selectedBackup = new $class($container, $params, $hash);
+                    $selectedBackup = new $class($cacheDir, $params, $hash);
 
                     break;
                 }

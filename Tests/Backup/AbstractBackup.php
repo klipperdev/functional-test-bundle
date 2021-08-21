@@ -11,8 +11,6 @@
 
 namespace Klipper\Bundle\FunctionalTestBundle\Tests\Backup;
 
-use Symfony\Component\DependencyInjection\ContainerInterface;
-
 /**
  * Abstract class of backup.
  *
@@ -20,15 +18,15 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  */
 abstract class AbstractBackup implements BackupInterface
 {
-    protected ContainerInterface $container;
+    protected string $cacheDir;
 
     protected array $params;
 
     protected string $hash;
 
-    public function __construct(ContainerInterface $container, array $params, string $hash)
+    public function __construct(string $cacheDir, array $params, string $hash)
     {
-        $this->container = $container;
+        $this->cacheDir = $cacheDir;
         $this->params = $params;
         $this->hash = $hash;
     }

@@ -25,7 +25,7 @@ class PgsqlBackup extends AbstractBackup
 
     public function getFile(): string
     {
-        return $this->container->getParameter('kernel.cache_dir').'/db_dump/test_'.$this->hash.'.pgdmp';
+        return $this->cacheDir.'/db_dump/test_'.$this->hash.'.pgdmp';
     }
 
     public function getRestoreCommand(): string

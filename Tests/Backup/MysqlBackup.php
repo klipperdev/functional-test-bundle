@@ -25,7 +25,7 @@ class MysqlBackup extends AbstractBackup
 
     public function getFile(): string
     {
-        return $this->container->getParameter('kernel.cache_dir').'/db_dump/test_'.$this->hash.'.sql';
+        return $this->cacheDir.'/db_dump/test_'.$this->hash.'.sql';
     }
 
     public function getRestoreCommand(): string
