@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Klipper\Bundle\FunctionalTestBundle\Tests\Backup;
+namespace Klipper\Bundle\FunctionalTestBundle\Test\Backup;
 
 /**
  * Backup for PostgreSQL.

@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Klipper\Bundle\FunctionalTestBundle\Tests;
+namespace Klipper\Bundle\FunctionalTestBundle\Test;
 
 /**
  * Interface of default authentication.

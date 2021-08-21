@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Klipper\Bundle\FunctionalTestBundle\Tests;
+namespace Klipper\Bundle\FunctionalTestBundle\Test;
 
 use Doctrine\Common\Cache\ClearableCache;
 use Doctrine\Common\DataFixtures\Executor\AbstractExecutor;
@@ -28,9 +28,9 @@ use Doctrine\Persistence\ManagerRegistry;
 use Doctrine\Persistence\Mapping\AbstractClassMetadataFactory;
 use Doctrine\Persistence\Mapping\ClassMetadata;
 use Doctrine\Persistence\ObjectManager;
-use Klipper\Bundle\FunctionalTestBundle\Tests\Backup\BackupInterface;
-use Klipper\Bundle\FunctionalTestBundle\Tests\Backup\MysqlBackup;
-use Klipper\Bundle\FunctionalTestBundle\Tests\Backup\PgsqlBackup;
+use Klipper\Bundle\FunctionalTestBundle\Test\Backup\BackupInterface;
+use Klipper\Bundle\FunctionalTestBundle\Test\Backup\MysqlBackup;
+use Klipper\Bundle\FunctionalTestBundle\Test\Backup\PgsqlBackup;
 use PDO\SQLite\Driver as SqliteDriver;
 use Symfony\Bridge\Doctrine\DataFixtures\ContainerAwareLoader;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
