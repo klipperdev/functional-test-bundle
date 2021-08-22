@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Klipper\Bundle\FunctionalTestBundle\Test;
+namespace Klipper\Bundle\FunctionalTestBundle\Test\Browser;
 
 use Klipper\Component\Resource\ResourceListStatutes;
 

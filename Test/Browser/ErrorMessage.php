@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Klipper\Bundle\FunctionalTestBundle\Test;
+namespace Klipper\Bundle\FunctionalTestBundle\Test\Browser;
 
 /**
  * Error message response builder for the API request response.

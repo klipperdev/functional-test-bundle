@@ -11,6 +11,10 @@
 
 namespace Klipper\Bundle\FunctionalTestBundle\Test;
 
+use Klipper\Bundle\FunctionalTestBundle\Test\Browser\ContentMessage;
+use Klipper\Bundle\FunctionalTestBundle\Test\Browser\ContentMessageBatch;
+use Klipper\Bundle\FunctionalTestBundle\Test\Browser\ContentMessageList;
+use Klipper\Bundle\FunctionalTestBundle\Test\Browser\ErrorMessage;
 use Symfony\Component\HttpFoundation\Response;
 
 /**

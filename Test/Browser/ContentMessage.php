@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Klipper\Bundle\FunctionalTestBundle\Test;
+namespace Klipper\Bundle\FunctionalTestBundle\Test\Browser;
 
 use Symfony\Component\PropertyAccess\PropertyAccess;
 
@@ -197,7 +197,7 @@ class ContentMessage
                 $fieldContent = $hasChildren && isset($content[$name]) ? $content[$name] : $content;
                 $fieldValue = !$hasChildren ? $field->build($fieldContent) : null;
 
-                if ($field->isRequired() || (!$field->isRequired() && null !== $fieldValue)) {
+                if ($field->isRequired() || null !== $fieldValue) {
                     $value[$name] = $field->build($fieldContent);
                 }
             }
