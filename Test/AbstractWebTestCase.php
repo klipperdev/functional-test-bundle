@@ -31,6 +31,8 @@ use Doctrine\Persistence\ObjectManager;
 use Klipper\Bundle\FunctionalTestBundle\Test\Backup\BackupInterface;
 use Klipper\Bundle\FunctionalTestBundle\Test\Backup\MysqlBackup;
 use Klipper\Bundle\FunctionalTestBundle\Test\Backup\PgsqlBackup;
+use Klipper\Component\DoctrineExtensions\Util\SqlFilterUtil;
+use Klipper\Component\Security\Model\UserInterface;
 use PDO\SQLite\Driver as SqliteDriver;
 use Symfony\Bridge\Doctrine\DataFixtures\ContainerAwareLoader;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
@@ -41,7 +43,6 @@ use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpKernel\KernelInterface;
 use Symfony\Component\Process\Exception\ProcessFailedException;
 use Symfony\Component\Process\Process;
-use Symfony\Contracts\Service\ResetInterface;
 
 /**
  * Abstract Web test case for klipper platform.
@@ -50,72 +51,49 @@ use Symfony\Contracts\Service\ResetInterface;
  */
 abstract class AbstractWebTestCase extends BaseWebTestCase
 {
-    protected static ?KernelInterface $systemKernel = null;
-
     protected static bool $dbReady = false;
 
-    protected static bool $systemBooted = false;
-
-    protected function tearDown(): void
+    /**
+     * Creates a KernelBrowser with authenticated user.
+     *
+     * @param null|string $userIdentifier  The user identifier (null value to use the default authenticated user)
+     * @param string      $firewallContext The firewall context
+     */
+    protected static function loginUser(?string $userIdentifier = null, string $firewallContext = 'main'): UserInterface
     {
-        static::ensureSystemKernelShutdown();
-        parent::tearDown();
-        static::$systemBooted = false;
+        $container = static::getContainer();
+
+        if (null === $userIdentifier) {
+            $defaultAuth = $container->getParameter('klipper_functional_test.authentication');
+            $userIdentifier = $defaultAuth['username'];
+        }
+
+        $em = $container->get('doctrine.orm.entity_manager');
+        $userRepo = $em->getRepository(UserInterface::class);
+        $filters = SqlFilterUtil::disableFilters($em, [], true);
+        $testUser = $userRepo->findOneBy([
+            'username' => $userIdentifier,
+        ]);
+
+        if (null === $testUser) {
+            throw new \InvalidArgumentException(sprintf('The "%s" user identifier does not exist', $userIdentifier));
+        }
+
+        $container->get('test.client')->loginUser($testUser, $firewallContext);
+        SqlFilterUtil::enableFilters($em, $filters);
+
+        return $testUser;
     }
 
     /**
-     * Get the container service.
+     * Creates a KernelBrowser with authenticated user for the API firewall context.
+     *
+     * @param null|string $userIdentifier  The user identifier (null value to use the default authenticated user)
+     * @param string      $firewallContext The firewall context
      */
-    protected static function getContainer(): ContainerInterface
+    protected static function loginUserApi(?string $userIdentifier = null): UserInterface
     {
-        if (null === static::$systemKernel || !static::$systemBooted) {
-            static::bootSystemKernel();
-            static::$systemBooted = true;
-        }
-
-        return static::$systemKernel->getContainer();
-    }
-
-    /**
-     * Creates an instance of a lightweight Http client.
-     *
-     * If $authentication is set to 'true' it will use the content of
-     * 'klipper_functional_test.authentication' to log in.
-     *
-     * $params can be used to pass headers to the client, note that they have
-     * to follow the naming format used in $_SERVER.
-     * Example: 'HTTP_X_REQUESTED_WITH' instead of 'X-Requested-With'
-     *
-     * @param array|bool|string $authentication The authentication
-     * @param array             $params         The client parameters
-     */
-    protected function createAuthClient(bool $authentication = false, array $params = []): KernelBrowser
-    {
-        if ($authentication) {
-            if (true === $authentication) {
-                $authentication = [
-                    'username' => $this->getContainer()
-                        ->getParameter('klipper_functional_test.authentication.username'),
-                ];
-            } elseif (\is_string($authentication)) {
-                $authentication = [
-                    'username' => $authentication,
-                ];
-            }
-
-            if (!isset($authentication['password'])) {
-                $authentication['password'] = $this->getContainer()
-                    ->getParameter('klipper_functional_test.authentication.password')
-                ;
-            }
-
-            $params = array_merge($params, [
-                'PHP_AUTH_USER' => $authentication['username'],
-                'PHP_AUTH_PW' => $authentication['password'],
-            ]);
-        }
-
-        return static::createClient(['environment' => 'test'], $params);
+        return static::loginUser($userIdentifier, 'api');
     }
 
     /**
@@ -143,7 +121,7 @@ abstract class AbstractWebTestCase extends BaseWebTestCase
      */
     protected function loadFixtures(array $fixtures, ?string $omName = null, string $registryName = 'doctrine', ?int $purgeMode = null): ?AbstractExecutor
     {
-        $container = $this->getContainer();
+        $container = static::getContainer();
         $registry = $container->get($registryName);
 
         if ($registry instanceof ManagerRegistry) {
@@ -263,7 +241,7 @@ abstract class AbstractWebTestCase extends BaseWebTestCase
 
             if ($fixture instanceof FixtureApplicationableInterface) {
                 if (null === $application) {
-                    $application = new Application(static::$systemKernel);
+                    $application = new Application(static::$kernel);
                 }
 
                 $fixture->setApplication($application);
@@ -559,7 +537,17 @@ abstract class AbstractWebTestCase extends BaseWebTestCase
     protected static function bootKernel(array $options = []): KernelInterface
     {
         $kernel = parent::bootKernel($options);
-        $kernel->getContainer()->get('translator')->setLocale(\Locale::getDefault());
+        $container = $kernel->getContainer();
+        $container->get('translator')->setLocale(\Locale::getDefault());
+        $fs = new Filesystem();
+
+        if ($container->hasParameter('klipper_functional_test.manifest.file')) {
+            $assetFile = $container->getParameter('klipper_functional_test.manifest.file');
+
+            if (!file_exists($assetFile)) {
+                $fs->dumpFile($assetFile, '{}');
+            }
+        }
 
         return $kernel;
     }
@@ -574,55 +562,6 @@ abstract class AbstractWebTestCase extends BaseWebTestCase
         }
 
         parent::ensureKernelShutdown();
-    }
-
-    /**
-     * Boots the Kernel for this test.
-     *
-     * @return KernelInterface A KernelInterface instance
-     */
-    protected static function bootSystemKernel(array $options = []): KernelInterface
-    {
-        static::ensureSystemKernelShutdown();
-
-        static::$systemKernel = static::createKernel($options);
-        static::$systemKernel->boot();
-        $container = static::$systemKernel->getContainer();
-        $container->get('translator')->setLocale(\Locale::getDefault());
-        $fs = new Filesystem();
-
-        if ($container->hasParameter('klipper_functional_test.manifest.file')) {
-            $assetFile = $container->getParameter('klipper_functional_test.manifest.file');
-
-            if (!file_exists($assetFile)) {
-                $fs->dumpFile($assetFile, '{}');
-            }
-        }
-
-        return static::$systemKernel;
-    }
-
-    /**
-     * Shuts the system kernel down if it was used in the test.
-     */
-    protected static function ensureSystemKernelShutdown(): void
-    {
-        if (null !== static::$systemKernel) {
-            $container = static::$systemKernel->getContainer();
-
-            if (null !== $container) {
-                /** @var EntityManagerInterface $em */
-                foreach ($container->get('doctrine')->getManagers() as $em) {
-                    $em->close();
-                }
-            }
-
-            static::$systemKernel->shutdown();
-
-            if ($container instanceof ResetInterface) {
-                $container->reset();
-            }
-        }
     }
 
     /**
