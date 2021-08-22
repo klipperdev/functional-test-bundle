@@ -21,6 +21,7 @@ use Klipper\Component\DoctrineChoice\ChoiceManagerInterface;
 use Klipper\Component\DoctrineChoice\Model\ChoiceInterface;
 use Klipper\Component\DoctrineExtensions\Util\SqlFilterUtil;
 use Klipper\Component\DoctrineExtra\Util\ClassUtils;
+use Klipper\Component\Metadata\MetadataManagerInterface;
 use Klipper\Component\Resource\Domain\DomainInterface;
 use Klipper\Component\Resource\ResourceInterface;
 use Klipper\Component\Resource\ResourceListInterface;
@@ -130,6 +131,11 @@ trait ModelKitTestsTrait
         return static::getContainer()->get('klipper_doctrine_choice.manager');
     }
 
+    public static function getMetadataManager(): MetadataManagerInterface
+    {
+        return static::getContainer()->get('klipper_metadata.manager');
+    }
+
     /**
      * Get the user instance by user identifier.
      *
@@ -213,6 +219,28 @@ trait ModelKitTestsTrait
     public static function getChoice(string $type, ?string $value): ?ChoiceInterface
     {
         return static::getChoiceManager()->getChoice($type, $value);
+    }
+
+    /**
+     * @return string[]
+     */
+    public static function getMetadataChoices(string $type): array
+    {
+        return static::getMetadataManager()->getChoice($type)->getValues();
+    }
+
+    /**
+     * @return string[]
+     */
+    public static function getMetadataChoice(string $type, ?string $value): ?string
+    {
+        $values = static::getMetadataManager()->getChoice($type)->getValues();
+
+        if (null !== $value) {
+            return \in_array($value, $values, true) ? $value : null;
+        }
+
+        return !empty($values) ? $values[0] : null;
     }
 
     /**
