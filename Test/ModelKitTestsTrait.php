@@ -15,6 +15,7 @@ use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ObjectRepository;
+use Klipper\Bundle\FunctionalTestBundle\Test\Token\TestModelToken;
 use Klipper\Component\DataLoader\Exception\ConsoleResourceException;
 use Klipper\Component\DoctrineExtensions\Util\SqlFilterUtil;
 use Klipper\Component\DoctrineExtra\Util\ClassUtils;
