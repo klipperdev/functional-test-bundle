@@ -467,7 +467,7 @@ trait ModelKitTestsTrait
         $copyFiles = [];
         $fs = new Filesystem();
         $localBase = static::getLocalBase().'/';
-        $originalFilename = __DIR__.'/Fixtures/Resources/assets/file.jpg';
+        $originalFilename = __DIR__.'/DataFixtures/Resources/assets/file.jpg';
 
         foreach ($files as $filename) {
             $fs->copy($originalFilename, $localBase.$filename);

@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Klipper\Bundle\FunctionalTestBundle\Test\Fixtures\Init;
+namespace Klipper\Bundle\FunctionalTestBundle\Test\DataFixtures\Data;
 
 use Doctrine\Common\DataFixtures\FixtureInterface;
 use Doctrine\Persistence\ObjectManager;
@@ -25,7 +25,7 @@ use Symfony\Component\Console\Output\NullOutput;
  *
  * @author François Pluchino <francois.pluchino@klipper.dev>
  */
-class LoadInitPlatformData implements FixtureInterface, DefaultAuthenticationInterface, FixtureApplicationableInterface
+class PlatformInitFixtures implements FixtureInterface, DefaultAuthenticationInterface, FixtureApplicationableInterface
 {
     use DefaultAuthenticationTrait;
     use FixtureApplicationableTrait;
