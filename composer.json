@@ -18,6 +18,7 @@
         "doctrine/orm": "^2.7.0",
         "klipper/api-bundle": "^2.0.0",
         "klipper/data-loader": "^2.0.0",
+        "klipper/doctrine-choice-bundle": "^2.0.0",
         "klipper/doctrine-extra": "^2.0.0",
         "klipper/resource-bundle": "^2.0.0",
         "ramsey/uuid": "^4.0.0"

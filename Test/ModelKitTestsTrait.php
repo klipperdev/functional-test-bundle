@@ -17,6 +17,8 @@ use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ObjectRepository;
 use Klipper\Bundle\FunctionalTestBundle\Test\Token\TestModelToken;
 use Klipper\Component\DataLoader\Exception\ConsoleResourceException;
+use Klipper\Component\DoctrineChoice\ChoiceManagerInterface;
+use Klipper\Component\DoctrineChoice\Model\ChoiceInterface;
 use Klipper\Component\DoctrineExtensions\Util\SqlFilterUtil;
 use Klipper\Component\DoctrineExtra\Util\ClassUtils;
 use Klipper\Component\Resource\Domain\DomainInterface;
@@ -120,8 +122,12 @@ trait ModelKitTestsTrait
      */
     public static function getOrganizationalContext(): OrganizationalContextInterface
     {
-        /* @var OrganizationalContextInterface $orgContext */
         return static::getContainer()->get('klipper_security.organizational_context');
+    }
+
+    public static function getChoiceManager(): ChoiceManagerInterface
+    {
+        return static::getContainer()->get('klipper_doctrine_choice.manager');
     }
 
     /**
@@ -194,6 +200,19 @@ trait ModelKitTestsTrait
             $file->getMimeType(),
             $file->getSize()
         );
+    }
+
+    /**
+     * @return ChoiceInterface[]
+     */
+    public static function getChoices(string $type): array
+    {
+        return static::getChoiceManager()->getChoices($type);
+    }
+
+    public static function getChoice(string $type, ?string $value): ?ChoiceInterface
+    {
+        return static::getChoiceManager()->getChoice($type, $value);
     }
 
     /**
