@@ -71,7 +71,7 @@ abstract class WebTestCase extends AbstractWebTestCase
         parent::tearDown();
     }
 
-    public function assertStatusCode(int $expectedStatusCode, KernelBrowser $client, bool $showContent = true): void
+    public static function assertStatusCode(int $expectedStatusCode, KernelBrowser $client, bool $showContent = true): void
     {
         $response = $client->getResponse();
         $statusCode = $response->getStatusCode();
@@ -82,7 +82,7 @@ abstract class WebTestCase extends AbstractWebTestCase
             // Get a more useful error message, if available
             if ($exception = $client->getContainer()->get('klipper_functional_test.exception_listener')->getLastThrowable()) {
                 $helpfulErrorMessage = $exception->getMessage();
-            } elseif (\count($validationErrors = $this->getValidationErrors($client))) {
+            } elseif (\count($validationErrors = static::getValidationErrors($client))) {
                 $helpfulErrorMessage = "Unexpected validation errors:\n";
 
                 foreach ($validationErrors as $error) {
@@ -98,7 +98,7 @@ abstract class WebTestCase extends AbstractWebTestCase
             }
 
             $helpfulErrorMessage .= "\r\n\r\nContent of response:\r\n\r\n";
-            $data = $this->jsonDecode($response->getContent(), true);
+            $data = static::jsonDecode($response->getContent(), true);
 
             if (isset($data['exception']) && \is_array($data['exception'])) {
                 if (!isset($data['exception'][0])) {
@@ -116,7 +116,7 @@ abstract class WebTestCase extends AbstractWebTestCase
                 }
             }
 
-            if ($this->hasJsonDecodeError()) {
+            if (static::hasJsonDecodeError()) {
                 $data = $response->getContent();
             }
 
@@ -136,7 +136,7 @@ abstract class WebTestCase extends AbstractWebTestCase
      * @param int           $contentLength The content length
      * @param null|string   $contentType   The content type
      */
-    public function assertDownloadedFile(KernelBrowser $client, ?string $filename = null, int $contentLength = 0, ?string $contentType = null): void
+    public static function assertDownloadedFile(KernelBrowser $client, ?string $filename = null, int $contentLength = 0, ?string $contentType = null): void
     {
         $response = $client->getResponse();
         static::assertNotNull($response);
@@ -162,7 +162,7 @@ abstract class WebTestCase extends AbstractWebTestCase
      *
      * @param string $filename The filename
      */
-    public function getUploadedFile(string $filename): UploadedFile
+    public static function getUploadedFile(string $filename): UploadedFile
     {
         $file = new File($filename);
 
@@ -187,7 +187,7 @@ abstract class WebTestCase extends AbstractWebTestCase
      * @param array         $parameters         The request parameters
      * @param bool          $changeHistory      Whether to update the history or not (only used internally for back(), forward(), and reload())
      */
-    protected function request(
+    protected static function request(
         ?int $expectedStatusCode,
         KernelBrowser $client,
         string $method,
@@ -202,7 +202,7 @@ abstract class WebTestCase extends AbstractWebTestCase
         $client->request($method, $uri, $parameters, $files, $server, $content, $changeHistory);
         ob_end_clean();
 
-        return $this->getResponseData($client, $expectedStatusCode);
+        return static::getResponseData($client, $expectedStatusCode);
     }
 
     /**
@@ -218,7 +218,7 @@ abstract class WebTestCase extends AbstractWebTestCase
      * @param array             $parameters         The request parameters
      * @param bool              $changeHistory      Whether to update the history or not (only used internally for back(), forward(), and reload())
      */
-    protected function requestJson(
+    protected static function requestJson(
         ?int $expectedStatusCode,
         KernelBrowser $client,
         string $method,
@@ -230,7 +230,7 @@ abstract class WebTestCase extends AbstractWebTestCase
         bool $changeHistory = true
     ): ?array {
         if (\is_array($content)) {
-            $content = $this->jsonDecode($content);
+            $content = static::jsonDecode($content);
         }
 
         if (null !== $content && !isset($server['CONTENT_TYPE'])) {
@@ -249,7 +249,7 @@ abstract class WebTestCase extends AbstractWebTestCase
             echo $output;
         }
 
-        return $this->getResponseJsonData($client, $expectedStatusCode);
+        return static::getResponseJsonData($client, $expectedStatusCode);
     }
 
     /**
@@ -258,13 +258,13 @@ abstract class WebTestCase extends AbstractWebTestCase
      * @param KernelBrowser $client             The http client
      * @param null|int      $expectedStatusCode The expected status code
      */
-    protected function getResponseData(KernelBrowser $client, ?int $expectedStatusCode = null): string
+    protected static function getResponseData(KernelBrowser $client, ?int $expectedStatusCode = null): string
     {
         $response = $client->getResponse();
         $content = $response->getContent();
 
         if (null !== $expectedStatusCode) {
-            $this->assertStatusCode($expectedStatusCode, $client);
+            static::assertStatusCode($expectedStatusCode, $client);
         }
 
         if (Response::HTTP_NO_CONTENT === $expectedStatusCode) {
@@ -280,14 +280,14 @@ abstract class WebTestCase extends AbstractWebTestCase
      * @param KernelBrowser $client             The http client
      * @param null|int      $expectedStatusCode The expected status code
      */
-    protected function getResponseJsonData(KernelBrowser $client, ?int $expectedStatusCode = null): ?array
+    protected static function getResponseJsonData(KernelBrowser $client, ?int $expectedStatusCode = null): ?array
     {
-        $data = $this->getResponseData($client, $expectedStatusCode);
+        $data = static::getResponseData($client, $expectedStatusCode);
 
         if (!empty($data)) {
             static::assertJson($data);
             static::assertSame('application/json', $client->getResponse()->headers->get('Content-Type'));
-            $data = $this->jsonDecode($data, true);
+            $data = static::jsonDecode($data, true);
         } else {
             $data = null;
         }
@@ -303,7 +303,7 @@ abstract class WebTestCase extends AbstractWebTestCase
      *
      * @throws
      */
-    protected function getJsonSerializedData($data, $viewGroups = []): array
+    protected static function getJsonSerializedData($data, $viewGroups = []): array
     {
         static::assertNotNull($data);
 
@@ -319,7 +319,7 @@ abstract class WebTestCase extends AbstractWebTestCase
             $viewGroups->setGroups($groups);
         }
 
-        return $this->jsonDecode($this->getContainer()->get('jms_serializer')->serialize($data, 'json', $viewGroups), true);
+        return static::jsonDecode(static::getContainer()->get('jms_serializer')->serialize($data, 'json', $viewGroups), true);
     }
 
     /**
@@ -327,9 +327,9 @@ abstract class WebTestCase extends AbstractWebTestCase
      *
      * @param string $class The class name
      */
-    protected function getResourceDomain(string $class): DomainInterface
+    protected static function getResourceDomain(string $class): DomainInterface
     {
-        return $this->getContainer()->get('klipper_resource.domain_manager')->get($class);
+        return static::getContainer()->get('klipper_resource.domain_manager')->get($class);
     }
 
     /**
@@ -339,33 +339,33 @@ abstract class WebTestCase extends AbstractWebTestCase
      *
      * @return EntityRepository|ObjectRepository
      */
-    protected function getObjectRepository(string $class): ObjectRepository
+    protected static function getObjectRepository(string $class): ObjectRepository
     {
-        return $this->getResourceDomain($class)->getRepository();
+        return static::getResourceDomain($class)->getRepository();
     }
 
     /**
      * Get the permission manager.
      */
-    protected function getPermissionManager(): PermissionManagerInterface
+    protected static function getPermissionManager(): PermissionManagerInterface
     {
-        return $this->getContainer()->get('klipper_security.permission_manager');
+        return static::getContainer()->get('klipper_security.permission_manager');
     }
 
     /**
      * Get the sharing manager.
      */
-    protected function getSharingManager(): SharingManagerInterface
+    protected static function getSharingManager(): SharingManagerInterface
     {
-        return $this->getContainer()->get('klipper_security.sharing_manager');
+        return static::getContainer()->get('klipper_security.sharing_manager');
     }
 
     /**
      * Get the authorization checker.
      */
-    protected function getAuthorizationChecker(): AuthorizationCheckerInterface
+    protected static function getAuthorizationChecker(): AuthorizationCheckerInterface
     {
-        return $this->getContainer()->get('security.authorization_checker');
+        return static::getContainer()->get('security.authorization_checker');
     }
 
     /**
@@ -373,10 +373,10 @@ abstract class WebTestCase extends AbstractWebTestCase
      *
      * @param bool $nullable Check if the user can me nullable
      */
-    protected function getTokenUser(bool $nullable = false): UserInterface
+    protected static function getTokenUser(bool $nullable = false): UserInterface
     {
         /** @var null|TokenInterface $token */
-        $token = $this->getContainer()->get('security.token_storage')->getToken();
+        $token = static::getContainer()->get('security.token_storage')->getToken();
         static::assertNotNull($token);
         /** @var null|UserInterface $user */
         $user = $token->getUser();
@@ -391,18 +391,18 @@ abstract class WebTestCase extends AbstractWebTestCase
     /**
      * Get the security organizational context.
      */
-    protected function getOrganizationalContext(): OrganizationalContextInterface
+    protected static function getOrganizationalContext(): OrganizationalContextInterface
     {
         /* @var OrganizationalContextInterface $orgContext */
-        return $this->getContainer()->get('klipper_security.organizational_context');
+        return static::getContainer()->get('klipper_security.organizational_context');
     }
 
     /**
      * Get the entity manager.
      */
-    protected function getEntityManager(): EntityManager
+    protected static function getEntityManager(): EntityManager
     {
-        return $this->getContainer()->get('doctrine.orm.entity_manager');
+        return static::getContainer()->get('doctrine.orm.entity_manager');
     }
 
     /**
@@ -412,9 +412,9 @@ abstract class WebTestCase extends AbstractWebTestCase
      * @param string      $alias   The alias
      * @param null|string $indexBy The index by
      */
-    protected function createQueryBuilder(string $class, string $alias = 'o', ?string $indexBy = null): QueryBuilder
+    protected static function createQueryBuilder(string $class, string $alias = 'o', ?string $indexBy = null): QueryBuilder
     {
-        return $this->getResourceDomain($class)->createQueryBuilder($alias, $indexBy);
+        return static::getResourceDomain($class)->createQueryBuilder($alias, $indexBy);
     }
 
     /**
@@ -428,7 +428,7 @@ abstract class WebTestCase extends AbstractWebTestCase
      * @param null|int   $limit        The limit
      * @param null|int   $offset       The offset
      */
-    protected function findOneBy(
+    protected static function findOneBy(
         string $class,
         array $criteria,
         bool $nullable = false,
@@ -437,7 +437,7 @@ abstract class WebTestCase extends AbstractWebTestCase
         ?int $limit = null,
         ?int $offset = null
     ): ?object {
-        $repo = $this->getObjectRepository($class);
+        $repo = static::getObjectRepository($class);
         $object = $repo->findOneBy($criteria, $orderBy, $limit, $offset);
 
         if (!$nullable) {
@@ -459,9 +459,9 @@ abstract class WebTestCase extends AbstractWebTestCase
      *
      * @return object[]
      */
-    protected function findBy(string $class, array $criteria, ?int $expectedCount = null, ?array $orderBy = null): array
+    protected static function findBy(string $class, array $criteria, ?int $expectedCount = null, ?array $orderBy = null): array
     {
-        $repo = $this->getObjectRepository($class);
+        $repo = static::getObjectRepository($class);
         $objects = $repo->findBy($criteria, $orderBy);
 
         if (\is_int($expectedCount)) {
@@ -478,7 +478,7 @@ abstract class WebTestCase extends AbstractWebTestCase
      * @param null|array     $content        The actual content
      * @param null|array     $validContent   The valid content
      */
-    protected function assertContentEquals(ContentMessage $contentMessage, ?array $content, ?array $validContent = null): void
+    protected static function assertContentEquals(ContentMessage $contentMessage, ?array $content, ?array $validContent = null): void
     {
         static::assertEquals($contentMessage->build($content), $content);
 
@@ -494,7 +494,7 @@ abstract class WebTestCase extends AbstractWebTestCase
      * @param null|array         $content            The actual content
      * @param null|array         $validContent       The valid content
      */
-    protected function assertContentListEquals(ContentMessageList $contentMessageList, ?array $content, ?array $validContent = null): void
+    protected static function assertContentListEquals(ContentMessageList $contentMessageList, ?array $content, ?array $validContent = null): void
     {
         static::assertEquals($contentMessageList->build($content), $content);
 
@@ -511,7 +511,7 @@ abstract class WebTestCase extends AbstractWebTestCase
      * @param null|array          $content              The actual content
      * @param null|string         $expectedRecordStatus The expected record status
      */
-    protected function assertContentBatchEquals(ContentMessageBatch $contentMessageBatch, ?array $content, ?string $expectedRecordStatus = null): void
+    protected static function assertContentBatchEquals(ContentMessageBatch $contentMessageBatch, ?array $content, ?string $expectedRecordStatus = null): void
     {
         $size = $contentMessageBatch->getSize();
         static::assertEquals($contentMessageBatch->build($content), $content);
@@ -534,7 +534,7 @@ abstract class WebTestCase extends AbstractWebTestCase
      * @param ErrorMessage $errorMessage The expected error message
      * @param null|array   $content      The actual error content
      */
-    protected function assertErrorContentEquals(ErrorMessage $errorMessage, ?array $content): void
+    protected static function assertErrorContentEquals(ErrorMessage $errorMessage, ?array $content): void
     {
         unset($content['exception']);
         static::assertEquals($errorMessage->build(), $content);
@@ -547,7 +547,7 @@ abstract class WebTestCase extends AbstractWebTestCase
      * @param string       $field            The field name of image path
      * @param null|bool    $assertFileExists Assert the file exists
      */
-    protected function assertUploadedFile($object, string $field, bool $assertFileExists = false): void
+    protected static function assertUploadedFile($object, string $field, bool $assertFileExists = false): void
     {
         $path = PropertyAccess::createPropertyAccessor()->getValue($object, $field);
         static::assertNotNull($path);
@@ -564,7 +564,7 @@ abstract class WebTestCase extends AbstractWebTestCase
      * @param string       $field         The field name of image path
      * @param null|bool    $assertDeleted Assert the deleted file
      */
-    protected function assertDeletedFile($object, string $field, bool $assertDeleted = false): void
+    protected static function assertDeletedFile($object, string $field, bool $assertDeleted = false): void
     {
         $path = PropertyAccess::createPropertyAccessor()->getValue($object, $field);
 
@@ -579,9 +579,9 @@ abstract class WebTestCase extends AbstractWebTestCase
      * @param string $class   The class name
      * @param array  $options The options of resource default value
      */
-    protected function newInstance(string $class, array $options = []): object
+    protected static function newInstance(string $class, array $options = []): object
     {
-        return $this->getResourceDomain($class)->newInstance($options);
+        return static::getResourceDomain($class)->newInstance($options);
     }
 
     /**
@@ -590,12 +590,12 @@ abstract class WebTestCase extends AbstractWebTestCase
      * @param object $object          The domain object
      * @param bool   $thrownException Thrown an exception if the result is invalid
      */
-    protected function create(object $object, bool $thrownException = true): ResourceInterface
+    protected static function create(object $object, bool $thrownException = true): ResourceInterface
     {
-        $res = $this->getResourceDomain(ClassUtils::getClass($object))->create($object);
+        $res = static::getResourceDomain(ClassUtils::getClass($object))->create($object);
 
         if ($thrownException && !$res->isValid()) {
-            $this->thrownConsoleException($res);
+            static::thrownConsoleException($res);
         }
 
         return $res;
@@ -607,12 +607,12 @@ abstract class WebTestCase extends AbstractWebTestCase
      * @param array $objects         The domain objects
      * @param bool  $thrownException Thrown an exception if the result is invalid
      */
-    protected function creates(array $objects, bool $thrownException = true): ResourceListInterface
+    protected static function creates(array $objects, bool $thrownException = true): ResourceListInterface
     {
-        $res = $this->getResourceDomain(ClassUtils::getClass($objects[0]))->creates($objects);
+        $res = static::getResourceDomain(ClassUtils::getClass($objects[0]))->creates($objects);
 
         if ($thrownException && $res->hasErrors()) {
-            $this->thrownConsoleException($res);
+            static::thrownConsoleException($res);
         }
 
         return $res;
@@ -624,12 +624,12 @@ abstract class WebTestCase extends AbstractWebTestCase
      * @param object $object          The domain object
      * @param bool   $thrownException Thrown an exception if the result is invalid
      */
-    protected function update(object $object, bool $thrownException = true): ResourceInterface
+    protected static function update(object $object, bool $thrownException = true): ResourceInterface
     {
-        $res = $this->getResourceDomain(ClassUtils::getClass($object))->update($object);
+        $res = static::getResourceDomain(ClassUtils::getClass($object))->update($object);
 
         if ($thrownException && !$res->isValid()) {
-            $this->thrownConsoleException($res);
+            static::thrownConsoleException($res);
         }
 
         return $res;
@@ -641,12 +641,12 @@ abstract class WebTestCase extends AbstractWebTestCase
      * @param array $objects         The domain objects
      * @param bool  $thrownException Thrown an exception if the result is invalid
      */
-    protected function updates(array $objects, bool $thrownException = true): ResourceListInterface
+    protected static function updates(array $objects, bool $thrownException = true): ResourceListInterface
     {
-        $res = $this->getResourceDomain(ClassUtils::getClass($objects[0]))->updates($objects);
+        $res = static::getResourceDomain(ClassUtils::getClass($objects[0]))->updates($objects);
 
         if ($thrownException && $res->hasErrors()) {
-            $this->thrownConsoleException($res);
+            static::thrownConsoleException($res);
         }
 
         return $res;
@@ -658,12 +658,12 @@ abstract class WebTestCase extends AbstractWebTestCase
      * @param object $object          The domain object
      * @param bool   $thrownException Thrown an exception if the result is invalid
      */
-    protected function delete(object $object, bool $thrownException = true): ResourceInterface
+    protected static function delete(object $object, bool $thrownException = true): ResourceInterface
     {
-        $res = $this->getResourceDomain(ClassUtils::getClass($object))->delete($object);
+        $res = static::getResourceDomain(ClassUtils::getClass($object))->delete($object);
 
         if ($thrownException && !$res->isValid()) {
-            $this->thrownConsoleException($res);
+            static::thrownConsoleException($res);
         }
 
         return $res;
@@ -675,12 +675,12 @@ abstract class WebTestCase extends AbstractWebTestCase
      * @param array $objects         The domain objects
      * @param bool  $thrownException Thrown an exception if the result is invalid
      */
-    protected function deletes(array $objects, bool $thrownException = true): ResourceListInterface
+    protected static function deletes(array $objects, bool $thrownException = true): ResourceListInterface
     {
-        $res = $this->getResourceDomain(ClassUtils::getClass($objects[0]))->deletes($objects);
+        $res = static::getResourceDomain(ClassUtils::getClass($objects[0]))->deletes($objects);
 
         if ($thrownException && $res->hasErrors()) {
-            $this->thrownConsoleException($res);
+            static::thrownConsoleException($res);
         }
 
         return $res;
@@ -693,17 +693,17 @@ abstract class WebTestCase extends AbstractWebTestCase
      * @param null|int|object|string $identifier      The domain identifier
      * @param bool                   $thrownException Thrown an exception if the result is invalid
      */
-    protected function undelete($class, $identifier = null, bool $thrownException = true): ResourceInterface
+    protected static function undelete($class, $identifier = null, bool $thrownException = true): ResourceInterface
     {
         if (\is_object($class)) {
             $identifier = $class;
             $class = ClassUtils::getClass($class);
         }
 
-        $res = $this->getResourceDomain($class)->undelete($identifier);
+        $res = static::getResourceDomain($class)->undelete($identifier);
 
         if ($thrownException && !$res->isValid()) {
-            $this->thrownConsoleException($res);
+            static::thrownConsoleException($res);
         }
 
         return $res;
@@ -716,17 +716,17 @@ abstract class WebTestCase extends AbstractWebTestCase
      * @param null|int[]|object[]|string[] $identifiers     The domain identifiers
      * @param bool                         $thrownException Thrown an exception if the result is invalid
      */
-    protected function undeletes($class, array $identifiers, bool $thrownException = true): ResourceListInterface
+    protected static function undeletes($class, array $identifiers, bool $thrownException = true): ResourceListInterface
     {
         if (\is_array($class)) {
             $identifiers = (array) $class;
             $class = ClassUtils::getClass($class[0]);
         }
 
-        $res = $this->getResourceDomain($class)->undeletes($identifiers);
+        $res = static::getResourceDomain($class)->undeletes($identifiers);
 
         if ($thrownException && $res->hasErrors()) {
-            $this->thrownConsoleException($res);
+            static::thrownConsoleException($res);
         }
 
         return $res;
@@ -739,9 +739,9 @@ abstract class WebTestCase extends AbstractWebTestCase
      *
      * @throws
      */
-    protected function refresh(object $object): void
+    protected static function refresh(object $object): void
     {
-        $this->getEntityManager()->refresh($object);
+        static::getEntityManager()->refresh($object);
     }
 
     /**
@@ -750,9 +750,9 @@ abstract class WebTestCase extends AbstractWebTestCase
      * @param string $route  The name of the route
      * @param array  $params Set of parameters
      */
-    protected function getUrl(string $route, array $params = [], int $absolute = UrlGeneratorInterface::ABSOLUTE_PATH): string
+    protected static function getUrl(string $route, array $params = [], int $absolute = UrlGeneratorInterface::ABSOLUTE_PATH): string
     {
-        return $this->getContainer()->get('router')->generate($route, $params, $absolute);
+        return static::getContainer()->get('router')->generate($route, $params, $absolute);
     }
 
     /**
@@ -760,9 +760,9 @@ abstract class WebTestCase extends AbstractWebTestCase
      *
      * @param null|string $username The username
      */
-    protected function injectUserToken(?string $username = 'user.test'): ?UserInterface
+    protected static function injectUserToken(?string $username = 'user.test'): ?UserInterface
     {
-        $container = $this->getContainer();
+        $container = static::getContainer();
         $tokenStorage = $container->get('security.token_storage');
         $blameableListener = $container->get('stof_doctrine_extensions.listener.blameable');
         $dispatcher = $container->get('event_dispatcher');
@@ -798,9 +798,9 @@ abstract class WebTestCase extends AbstractWebTestCase
      *
      * @param null|string $name The organization name
      */
-    protected function injectCurrentOrgContext(?string $name): void
+    protected static function injectCurrentOrgContext(?string $name): void
     {
-        $this->getContainer()->get('klipper_security_extra.organizational_context.helper')
+        static::getContainer()->get('klipper_security_extra.organizational_context.helper')
             ->setCurrentOrganizationUser($name)
         ;
     }
@@ -808,9 +808,9 @@ abstract class WebTestCase extends AbstractWebTestCase
     /**
      * Disable the current organization in security organizational context.
      */
-    protected function disableCurrentOrganization(): void
+    protected static function disableCurrentOrganization(): void
     {
-        $this->getOrganizationalContext()->setCurrentOrganization(false);
+        static::getOrganizationalContext()->setCurrentOrganization(false);
     }
 
     /**
@@ -820,9 +820,9 @@ abstract class WebTestCase extends AbstractWebTestCase
      *
      * @throws
      */
-    protected function quoteIdentifier(string $value): string
+    protected static function quoteIdentifier(string $value): string
     {
-        $em = $this->getEntityManager();
+        $em = static::getEntityManager();
         $platform = $em->getConnection()->getDatabasePlatform();
 
         return $platform->quoteIdentifier($value);
@@ -838,7 +838,7 @@ abstract class WebTestCase extends AbstractWebTestCase
         $all = true === $filters;
         $filters = \is_array($filters) ? $filters : [];
 
-        $em = $this->getEntityManager();
+        $em = static::getEntityManager();
         $filters = array_unique(array_merge($this->disabledFilters, $filters));
 
         $this->disabledFilters = SqlFilterUtil::findFilters($em, $filters, $all);
@@ -850,16 +850,16 @@ abstract class WebTestCase extends AbstractWebTestCase
      */
     protected function reEnableFilters(): void
     {
-        SqlFilterUtil::enableFilters($this->getEntityManager(), $this->disabledFilters);
+        SqlFilterUtil::enableFilters(static::getEntityManager(), $this->disabledFilters);
         $this->disabledFilters = [];
     }
 
     /**
      * Remove content files.
      */
-    protected function cleanupContent(): void
+    protected static function cleanupContent(): void
     {
-        $path = FileUtil::getLocalBase($this->getContainer());
+        $path = FileUtil::getLocalBase(static::getContainer());
 
         if (file_exists($path)) {
             $cmd = 'rm -rf '.escapeshellarg($path);
@@ -884,17 +884,17 @@ abstract class WebTestCase extends AbstractWebTestCase
      *
      * @throws
      */
-    protected function cleanupEntityManager(?string $entityName = null): void
+    protected static function cleanupEntityManager(?string $entityName = null): void
     {
-        $this->getEntityManager()->clear($entityName);
+        static::getEntityManager()->clear($entityName);
     }
 
-    protected function jsonDecode(string $content, bool $assoc = false): array
+    protected static function jsonDecode(string $content, bool $assoc = false): array
     {
         return $assoc ? (array) json_decode($content, true) : json_decode($content, false);
     }
 
-    protected function hasJsonDecodeError(): bool
+    protected static function hasJsonDecodeError(): bool
     {
         return JSON_ERROR_NONE !== json_last_error();
     }
@@ -904,13 +904,13 @@ abstract class WebTestCase extends AbstractWebTestCase
      *
      * @param ResourceInterface|ResourceListInterface $resource
      */
-    private function thrownConsoleException($resource): void
+    private static function thrownConsoleException($resource): void
     {
-        $this->tryToThrownConstraintCauseException($resource->getErrors());
+        static::tryToThrownConstraintCauseException($resource->getErrors());
 
         if ($resource instanceof ResourceListInterface) {
             foreach ($resource->all() as $childResource) {
-                $this->tryToThrownConstraintCauseException($childResource->getErrors());
+                static::tryToThrownConstraintCauseException($childResource->getErrors());
             }
         }
 
@@ -922,7 +922,7 @@ abstract class WebTestCase extends AbstractWebTestCase
      *
      * @param ConstraintViolationListInterface $errors The constraint violation list
      */
-    private function tryToThrownConstraintCauseException(ConstraintViolationListInterface $errors): void
+    private static function tryToThrownConstraintCauseException(ConstraintViolationListInterface $errors): void
     {
         if ($errors->count() > 0) {
             $error = $errors->get(0);
@@ -936,7 +936,7 @@ abstract class WebTestCase extends AbstractWebTestCase
     /**
      * @return ConstraintViolationInterface[]|ConstraintViolationListInterface
      */
-    private function getValidationErrors(KernelBrowser $client)
+    private static function getValidationErrors(KernelBrowser $client)
     {
         $container = $client->getContainer();
 

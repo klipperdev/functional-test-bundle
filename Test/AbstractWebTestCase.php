@@ -36,7 +36,6 @@ use Klipper\Component\Security\Model\UserInterface;
 use PDO\SQLite\Driver as SqliteDriver;
 use Symfony\Bridge\Doctrine\DataFixtures\ContainerAwareLoader;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
-use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase as BaseWebTestCase;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Filesystem\Filesystem;
@@ -119,7 +118,7 @@ abstract class AbstractWebTestCase extends BaseWebTestCase
      *
      * @throws
      */
-    protected function loadFixtures(array $fixtures, ?string $omName = null, string $registryName = 'doctrine', ?int $purgeMode = null): ?AbstractExecutor
+    protected static function loadFixtures(array $fixtures, ?string $omName = null, string $registryName = 'doctrine', ?int $purgeMode = null): ?AbstractExecutor
     {
         $container = static::getContainer();
         $registry = $container->get($registryName);
@@ -153,8 +152,8 @@ abstract class AbstractWebTestCase extends BaseWebTestCase
                 static::markTestSkipped('The Sqlite database driver is not supported for the ');
             }
 
-            $this->initDatabase();
-            $params = $this->getConnectionParams();
+            static::initDatabase();
+            $params = static::getConnectionParams();
             $metadatas = $om->getMetadataFactory()->getAllMetadata();
             usort($metadatas, static function ($a, $b) {
                 return strcmp($a->name, $b->name);
@@ -170,21 +169,21 @@ abstract class AbstractWebTestCase extends BaseWebTestCase
                 $fs = new Filesystem();
                 $fs->mkdir(\dirname($backupFile));
 
-                if ($backup->exists() && $this->isBackupUpToDate($fixtures, $backupFile)) {
+                if ($backup->exists() && static::isBackupUpToDate($fixtures, $backupFile)) {
                     $om->flush();
                     $om->clear();
 
-                    $this->preFixtureRestore($om, $referenceRepository);
+                    static::preFixtureRestore($om, $referenceRepository);
 
                     $cmd = $backup->getRestoreCommand();
-                    $this->runDatabaseCommand($cmd, $params);
+                    static::runDatabaseCommand($cmd, $params);
 
                     /** @var ORMExecutor $executor */
                     $executor = new $executorClass($om);
                     $executor->setReferenceRepository($referenceRepository);
                     $referenceRepository->load($backupFile);
 
-                    $this->postFixtureRestore();
+                    static::postFixtureRestore();
 
                     return $executor;
                 }
@@ -194,7 +193,7 @@ abstract class AbstractWebTestCase extends BaseWebTestCase
                 $schemaTool->createSchema($metadatas);
             }
 
-            $this->postFixtureSetup();
+            static::postFixtureSetup();
 
             /** @var ORMExecutor $executor */
             $executor = new $executorClass($om);
@@ -229,7 +228,7 @@ abstract class AbstractWebTestCase extends BaseWebTestCase
             $executor->purge();
         }
 
-        $loader = $this->getFixtureLoader($fixtures);
+        $loader = static::getFixtureLoader($fixtures);
         $fixtures = $loader->getFixtures();
         $defaultAuth = $container->getParameter('klipper_functional_test.authentication');
         $application = null;
@@ -253,15 +252,15 @@ abstract class AbstractWebTestCase extends BaseWebTestCase
         if (null !== $backup) {
             $backupFile = $backup->getFile();
             $om = $executor->getObjectManager();
-            $this->preReferenceSave($om, $executor, $backupFile);
+            static::preReferenceSave($om, $executor, $backupFile);
 
             $referenceRepository->save($backupFile);
 
-            $params = $this->getConnectionParams();
+            $params = static::getConnectionParams();
             $cmd = $backup->getBackupCommand();
-            $this->runDatabaseCommand($cmd, $params);
+            static::runDatabaseCommand($cmd, $params);
 
-            $this->postReferenceSave($om, $executor, $backupFile);
+            static::postReferenceSave($om, $executor, $backupFile);
         }
 
         return $executor;
@@ -271,7 +270,7 @@ abstract class AbstractWebTestCase extends BaseWebTestCase
      * Callback function to be executed after Schema creation.
      * Use this to execute acl:init or other things necessary.
      */
-    protected function postFixtureSetup(): void
+    protected static function postFixtureSetup(): void
     {
     }
 
@@ -281,14 +280,14 @@ abstract class AbstractWebTestCase extends BaseWebTestCase
      * @param ObjectManager            $manager             The object manager
      * @param ProxyReferenceRepository $referenceRepository The reference repository
      */
-    protected function preFixtureRestore(ObjectManager $manager, ProxyReferenceRepository $referenceRepository): void
+    protected static function preFixtureRestore(ObjectManager $manager, ProxyReferenceRepository $referenceRepository): void
     {
     }
 
     /**
      * Callback function to be executed after Schema restore.
      */
-    protected function postFixtureRestore(): void
+    protected static function postFixtureRestore(): void
     {
     }
 
@@ -299,7 +298,7 @@ abstract class AbstractWebTestCase extends BaseWebTestCase
      * @param AbstractExecutor $executor       Executor of the data fixtures
      * @param string           $backupFilePath Path of file used to backup the references of the data fixtures
      */
-    protected function preReferenceSave(ObjectManager $manager, AbstractExecutor $executor, $backupFilePath): void
+    protected static function preReferenceSave(ObjectManager $manager, AbstractExecutor $executor, $backupFilePath): void
     {
     }
 
@@ -310,7 +309,7 @@ abstract class AbstractWebTestCase extends BaseWebTestCase
      * @param AbstractExecutor $executor       Executor of the data fixtures
      * @param string           $backupFilePath Path of file used to backup the references of the data fixtures
      */
-    protected function postReferenceSave(ObjectManager $manager, AbstractExecutor $executor, $backupFilePath): void
+    protected static function postReferenceSave(ObjectManager $manager, AbstractExecutor $executor, $backupFilePath): void
     {
     }
 
@@ -320,7 +319,7 @@ abstract class AbstractWebTestCase extends BaseWebTestCase
      * @param string $cmd    The command
      * @param array  $params The database connection parameters
      */
-    protected function runDatabaseCommand(string $cmd, array $params): Process
+    protected static function runDatabaseCommand(string $cmd, array $params): Process
     {
         $process = Process::fromShellCommandline($cmd, null, array_merge($_SERVER, $_ENV, [
             'PGPASSWORD' => $params['password'],
@@ -337,13 +336,13 @@ abstract class AbstractWebTestCase extends BaseWebTestCase
     /**
      * Init the database.
      */
-    protected function initDatabase(): void
+    protected static function initDatabase(): void
     {
         $firstChannel = getenv('ENV_TEST_IS_FIRST_ON_CHANNEL');
 
         if ((!self::$dbReady && false === $firstChannel) || false !== $firstChannel) {
-            $this->createDatabase();
-            $this->loadDatabaseExtensions();
+            static::createDatabase();
+            static::loadDatabaseExtensions();
             self::$dbReady = false === getenv('ENV_TEST_CHANNEL_READABLE');
         }
     }
@@ -353,9 +352,9 @@ abstract class AbstractWebTestCase extends BaseWebTestCase
      *
      * @throws
      */
-    protected function createDatabase(): void
+    protected static function createDatabase(): void
     {
-        $params = $this->getConnectionParams();
+        $params = static::getConnectionParams();
         $dbName = $params['dbname'];
         unset($params['dbname'], $params['path'], $params['url']);
         $tmpConnection = DriverManager::getConnection($params);
@@ -375,15 +374,15 @@ abstract class AbstractWebTestCase extends BaseWebTestCase
      *
      * @throws
      */
-    protected function loadDatabaseExtensions(): void
+    protected static function loadDatabaseExtensions(): void
     {
-        $params = $this->getConnectionParams();
+        $params = static::getConnectionParams();
         $tmpConnection = DriverManager::getConnection($params);
         $driver = str_replace('pdo_', '', $params['driver']);
-        $extensions = $this->getContainer()->getParameter('klipper_functional_test.db_extensions');
+        $extensions = static::getContainer()->getParameter('klipper_functional_test.db_extensions');
 
         if ('pgsql' === $driver) {
-            $this->loadPgsqlDatabaseExtensions($tmpConnection, $extensions[$driver] ?? []);
+            static::loadPgsqlDatabaseExtensions($tmpConnection, $extensions[$driver] ?? []);
         }
 
         $tmpConnection->close();
@@ -393,8 +392,10 @@ abstract class AbstractWebTestCase extends BaseWebTestCase
      * Load the database extensions for PostgreSQL.
      *
      * @param string[] $extensions
+     *
+     * @throws
      */
-    protected function loadPgsqlDatabaseExtensions(Connection $connection, array $extensions): void
+    protected static function loadPgsqlDatabaseExtensions(Connection $connection, array $extensions): void
     {
         foreach ($extensions as $extension) {
             try {
@@ -408,10 +409,10 @@ abstract class AbstractWebTestCase extends BaseWebTestCase
     /**
      * Get the parameters of database connection.
      */
-    protected function getConnectionParams(): array
+    protected static function getConnectionParams(): array
     {
         /** @var EntityManagerInterface $em */
-        $em = $this->getContainer()->get('doctrine')->getManager();
+        $em = static::getContainer()->get('doctrine')->getManager();
         $connection = $em->getConnection();
         $params = $connection->getParams();
         $params = $params['master'] ?? $params;
@@ -435,16 +436,16 @@ abstract class AbstractWebTestCase extends BaseWebTestCase
      * @return bool TRUE if the backup was made since the modifications to the
      *              fixtures; FALSE otherwise
      */
-    protected function isBackupUpToDate(array $fixtures, string $backupFile): bool
+    protected static function isBackupUpToDate(array $fixtures, string $backupFile): bool
     {
         $backupLastModifiedDateTime = new \DateTime();
         $backupLastModifiedDateTime->setTimestamp(filemtime($backupFile));
 
-        $loader = $this->getFixtureLoader($fixtures);
+        $loader = static::getFixtureLoader($fixtures);
 
         // Use loader in order to fetch all the dependencies fixtures.
         foreach ($loader->getFixtures() as $fixture) {
-            $fixtureLastModifiedDateTime = $this->getFixtureLastModified($fixture);
+            $fixtureLastModifiedDateTime = static::getFixtureLastModified($fixture);
 
             if ($backupLastModifiedDateTime < $fixtureLastModifiedDateTime) {
                 return false;
@@ -461,13 +462,13 @@ abstract class AbstractWebTestCase extends BaseWebTestCase
      *
      * @return ContainerAwareLoader|Loader
      */
-    protected function getFixtureLoader(array $fixtures): Loader
+    protected static function getFixtureLoader(array $fixtures): Loader
     {
         $loaderClass = class_exists(ContainerAwareLoader::class)
             ? ContainerAwareLoader::class
             : Loader::class;
 
-        $loader = new $loaderClass($this->getContainer());
+        $loader = new $loaderClass(static::getContainer());
 
         foreach ($fixtures as $fixture) {
             if (!$loader->hasFixture($fixture)) {
@@ -487,7 +488,7 @@ abstract class AbstractWebTestCase extends BaseWebTestCase
      *
      * @throws
      */
-    protected function getFixtureLastModified(FixtureInterface $fixture): ?\DateTime
+    protected static function getFixtureLastModified(FixtureInterface $fixture): ?\DateTime
     {
         $lastModifiedDateTime = null;
 
