@@ -13,10 +13,8 @@ namespace Klipper\Bundle\FunctionalTestBundle\Test\DataFixtures\Data;
 
 use Doctrine\Common\DataFixtures\FixtureInterface;
 use Doctrine\Persistence\ObjectManager;
-use Klipper\Bundle\FunctionalTestBundle\Test\DefaultAuthenticationInterface;
-use Klipper\Bundle\FunctionalTestBundle\Test\DefaultAuthenticationTrait;
-use Klipper\Bundle\FunctionalTestBundle\Test\FixtureApplicationableInterface;
-use Klipper\Bundle\FunctionalTestBundle\Test\FixtureApplicationableTrait;
+use Klipper\Bundle\FunctionalTestBundle\Test\DataFixtures\FixtureApplicationableInterface;
+use Klipper\Bundle\FunctionalTestBundle\Test\DataFixtures\FixtureApplicationableTrait;
 use Symfony\Component\Console\Input\ArgvInput;
 use Symfony\Component\Console\Output\NullOutput;
 
@@ -25,9 +23,8 @@ use Symfony\Component\Console\Output\NullOutput;
  *
  * @author François Pluchino <francois.pluchino@klipper.dev>
  */
-class PlatformInitFixtures implements FixtureInterface, DefaultAuthenticationInterface, FixtureApplicationableInterface
+class PlatformInitFixtures implements FixtureInterface, FixtureApplicationableInterface
 {
-    use DefaultAuthenticationTrait;
     use FixtureApplicationableTrait;
 
     private static string $COMMAND_NAME = 'init:klipper';

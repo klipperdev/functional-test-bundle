@@ -31,6 +31,8 @@ use Doctrine\Persistence\ObjectManager;
 use Klipper\Bundle\FunctionalTestBundle\Test\Backup\BackupInterface;
 use Klipper\Bundle\FunctionalTestBundle\Test\Backup\MysqlBackup;
 use Klipper\Bundle\FunctionalTestBundle\Test\Backup\PgsqlBackup;
+use Klipper\Bundle\FunctionalTestBundle\Test\DataFixtures\FixtureApplicationableInterface;
+use Klipper\Bundle\FunctionalTestBundle\Test\DataFixtures\FixtureDefaultAuthenticationInterface;
 use PDO\SQLite\Driver as SqliteDriver;
 use Symfony\Bridge\Doctrine\DataFixtures\ContainerAwareLoader;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
@@ -186,7 +188,7 @@ trait DatabaseKitTestsTrait
         $application = null;
 
         foreach ($fixtures as $fixture) {
-            if ($fixture instanceof DefaultAuthenticationInterface) {
+            if ($fixture instanceof FixtureDefaultAuthenticationInterface) {
                 $fixture->setDefaultAuthentication($defaultAuth['username'], $defaultAuth['password']);
             }
 

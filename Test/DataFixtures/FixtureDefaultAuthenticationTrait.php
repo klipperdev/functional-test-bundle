@@ -9,21 +9,21 @@
  * file that was distributed with this source code.
  */
 
-namespace Klipper\Bundle\FunctionalTestBundle\Test;
+namespace Klipper\Bundle\FunctionalTestBundle\Test\DataFixtures;
 
 /**
- * Interface of default authentication.
+ * Default authentication for fixture.
  *
  * @author François Pluchino <francois.pluchino@klipper.dev>
  */
-trait DefaultAuthenticationTrait
+trait FixtureDefaultAuthenticationTrait
 {
     protected string $defaultUsername = '';
 
     protected string $defaultPassword = '';
 
     /**
-     * @see DefaultAuthenticationInterface::setDefaultAuthentication()
+     * @see FixtureDefaultAuthenticationInterface::setDefaultAuthentication()
      */
     public function setDefaultAuthentication(string $username, string $password): void
     {

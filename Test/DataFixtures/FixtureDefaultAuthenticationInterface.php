@@ -9,14 +9,14 @@
  * file that was distributed with this source code.
  */
 
-namespace Klipper\Bundle\FunctionalTestBundle\Test;
+namespace Klipper\Bundle\FunctionalTestBundle\Test\DataFixtures;
 
 /**
- * Interface of default authentication.
+ * Default authentication of fixture.
  *
  * @author François Pluchino <francois.pluchino@klipper.dev>
  */
-interface DefaultAuthenticationInterface
+interface FixtureDefaultAuthenticationInterface
 {
     /**
      * @param string $username The username
