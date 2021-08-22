@@ -26,6 +26,7 @@ use Klipper\Component\Security\Model\UserInterface;
 use Klipper\Component\Security\Organizational\OrganizationalContextInterface;
 use Klipper\Component\Security\Permission\PermissionManagerInterface;
 use Klipper\Component\Security\Sharing\SharingManagerInterface;
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\Process\Exception\ProcessFailedException;
@@ -455,11 +456,33 @@ trait ModelKitTestsTrait
     }
 
     /**
+     * Load the files in content directory.
+     *
+     * @param string[] $files The names of uploaded files
+     *
+     * @return string[]
+     */
+    public static function loadFiles(array $files): array
+    {
+        $copyFiles = [];
+        $fs = new Filesystem();
+        $localBase = static::getLocalBase().'/';
+        $originalFilename = __DIR__.'/Fixtures/Resources/assets/file.jpg';
+
+        foreach ($files as $filename) {
+            $fs->copy($originalFilename, $localBase.$filename);
+            $copyFiles[] = $localBase.$filename;
+        }
+
+        return $copyFiles;
+    }
+
+    /**
      * Remove content files.
      */
     public static function cleanupContent(): void
     {
-        $path = FileUtil::getLocalBase(static::getContainer());
+        $path = static::getLocalBase();
 
         if (file_exists($path)) {
             $cmd = 'rm -rf '.escapeshellarg($path);
@@ -551,6 +574,11 @@ trait ModelKitTestsTrait
         }
 
         return $user;
+    }
+
+    protected static function getLocalBase(): string
+    {
+        return static::getContainer()->getParameter('kernel.cache_dir').'/content_local';
     }
 
     private static function setUpModelTests(): void
