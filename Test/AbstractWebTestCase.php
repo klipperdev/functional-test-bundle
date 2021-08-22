@@ -33,6 +33,7 @@ use Klipper\Bundle\FunctionalTestBundle\Test\Backup\MysqlBackup;
 use Klipper\Bundle\FunctionalTestBundle\Test\Backup\PgsqlBackup;
 use PDO\SQLite\Driver as SqliteDriver;
 use Symfony\Bridge\Doctrine\DataFixtures\ContainerAwareLoader;
+use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase as BaseWebTestCase;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -253,10 +254,19 @@ abstract class AbstractWebTestCase extends BaseWebTestCase
         $loader = $this->getFixtureLoader($fixtures);
         $fixtures = $loader->getFixtures();
         $defaultAuth = $container->getParameter('klipper_functional_test.authentication');
+        $application = null;
 
         foreach ($fixtures as $fixture) {
             if ($fixture instanceof DefaultAuthenticationInterface) {
                 $fixture->setDefaultAuthentication($defaultAuth['username'], $defaultAuth['password']);
+            }
+
+            if ($fixture instanceof FixtureApplicationableInterface) {
+                if (null === $application) {
+                    $application = new Application(static::$systemKernel);
+                }
+
+                $fixture->setApplication($application);
             }
         }
 
