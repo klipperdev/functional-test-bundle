@@ -31,12 +31,9 @@ use Doctrine\Persistence\ObjectManager;
 use Klipper\Bundle\FunctionalTestBundle\Test\Backup\BackupInterface;
 use Klipper\Bundle\FunctionalTestBundle\Test\Backup\MysqlBackup;
 use Klipper\Bundle\FunctionalTestBundle\Test\Backup\PgsqlBackup;
-use Klipper\Component\DoctrineExtensions\Util\SqlFilterUtil;
-use Klipper\Component\Security\Model\UserInterface;
 use PDO\SQLite\Driver as SqliteDriver;
 use Symfony\Bridge\Doctrine\DataFixtures\ContainerAwareLoader;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
-use Symfony\Bundle\FrameworkBundle\Test\WebTestCase as BaseWebTestCase;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpKernel\KernelInterface;
@@ -44,56 +41,11 @@ use Symfony\Component\Process\Exception\ProcessFailedException;
 use Symfony\Component\Process\Process;
 
 /**
- * Abstract Web test case for klipper platform.
- *
  * @author François Pluchino <francois.pluchino@klipper.dev>
  */
-abstract class AbstractWebTestCase extends BaseWebTestCase
+trait DatabaseKitTestsTrait
 {
     protected static bool $dbReady = false;
-
-    /**
-     * Creates a KernelBrowser with authenticated user.
-     *
-     * @param null|string $userIdentifier  The user identifier (null value to use the default authenticated user)
-     * @param string      $firewallContext The firewall context
-     */
-    protected static function loginUser(?string $userIdentifier = null, string $firewallContext = 'main'): UserInterface
-    {
-        $container = static::getContainer();
-
-        if (null === $userIdentifier) {
-            $defaultAuth = $container->getParameter('klipper_functional_test.authentication');
-            $userIdentifier = $defaultAuth['username'];
-        }
-
-        $em = $container->get('doctrine.orm.entity_manager');
-        $userRepo = $em->getRepository(UserInterface::class);
-        $filters = SqlFilterUtil::disableFilters($em, [], true);
-        $testUser = $userRepo->findOneBy([
-            'username' => $userIdentifier,
-        ]);
-
-        if (null === $testUser) {
-            throw new \InvalidArgumentException(sprintf('The "%s" user identifier does not exist', $userIdentifier));
-        }
-
-        $container->get('test.client')->loginUser($testUser, $firewallContext);
-        SqlFilterUtil::enableFilters($em, $filters);
-
-        return $testUser;
-    }
-
-    /**
-     * Creates a KernelBrowser with authenticated user for the API firewall context.
-     *
-     * @param null|string $userIdentifier  The user identifier (null value to use the default authenticated user)
-     * @param string      $firewallContext The firewall context
-     */
-    protected static function loginUserApi(?string $userIdentifier = null): UserInterface
-    {
-        return static::loginUser($userIdentifier, 'api');
-    }
 
     /**
      * Set the database to the provided fixtures.
@@ -298,7 +250,7 @@ abstract class AbstractWebTestCase extends BaseWebTestCase
      * @param AbstractExecutor $executor       Executor of the data fixtures
      * @param string           $backupFilePath Path of file used to backup the references of the data fixtures
      */
-    protected static function preReferenceSave(ObjectManager $manager, AbstractExecutor $executor, $backupFilePath): void
+    protected static function preReferenceSave(ObjectManager $manager, AbstractExecutor $executor, string $backupFilePath): void
     {
     }
 
@@ -309,7 +261,7 @@ abstract class AbstractWebTestCase extends BaseWebTestCase
      * @param AbstractExecutor $executor       Executor of the data fixtures
      * @param string           $backupFilePath Path of file used to backup the references of the data fixtures
      */
-    protected static function postReferenceSave(ObjectManager $manager, AbstractExecutor $executor, $backupFilePath): void
+    protected static function postReferenceSave(ObjectManager $manager, AbstractExecutor $executor, string $backupFilePath): void
     {
     }
 
