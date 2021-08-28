@@ -16,7 +16,6 @@
         "doctrine/doctrine-fixtures-bundle": "^3.3.0",
         "doctrine/doctrine-bundle": "^2.4.0",
         "doctrine/orm": "^2.7.0",
-        "klipper/api-bundle": "^2.0.0",
         "klipper/data-loader": "^2.0.0",
         "klipper/doctrine-choice-bundle": "^2.0.0",
         "klipper/doctrine-extra": "^2.0.0",
